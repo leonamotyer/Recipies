@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { Recipe } from "@/lib/firebaseRecipes";
+import type { Recipe, RecipeCardProps } from "@/lib/data.types";
 
-interface RecipeCardProps {
-  recipe: Recipe;
-  index?: number;
-}
 
 // Helper function to get background color based on index
 const getBackgroundColor = (index: number) => {
@@ -19,9 +15,17 @@ const getBackgroundColor = (index: number) => {
 
 export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
   // Get first category for display (or use "Recipe" as default)
-  const displayCategory = recipe.categories && recipe.categories.length > 0 
-    ? recipe.categories[0] 
+  // Support both dishCategories (from Data Connect) and categories (computed alias)
+  const categories = recipe.dishCategories || recipe.categories || [];
+  const displayCategory = categories.length > 0 
+    ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
     : "Recipe";
+  
+  // Use computed time or format from cookTime
+  const displayTime = recipe.time || (recipe.cookTime ? `${recipe.cookTime} min` : 'Time not specified');
+  
+  // Use description or cookingDescription
+  const displayDescription = recipe.description || recipe.cookingDescription;
 
   return (
     <Link
@@ -39,7 +43,7 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
             {recipe.title}
           </h3>
           <span className="text-sm text-text-color font-medium whitespace-nowrap">
-            {recipe.time}
+            {displayTime}
           </span>
         </div>
         
@@ -53,9 +57,9 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
         )}
         
         {/* Description if available */}
-        {recipe.description && (
+        {displayDescription && (
           <p className="text-text-color mb-4 text-sm line-clamp-2">
-            {recipe.description}
+            {displayDescription}
           </p>
         )}
       </div>

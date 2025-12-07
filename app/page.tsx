@@ -2,21 +2,36 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/app/components/header";
 import RecipeCard from "@/app/components/recipieCard";
-import { getAllRecipes, Recipe } from "@/lib/firebaseRecipes";
+import { getAllRecipes } from "@/lib/firebaseRecipesRealtime";
+import type { Recipe } from "@/lib/data.types";
 
 export default async function Home() {
   // Get all recipes from Firebase
-  let featuredRecipes: Recipe[] = [];
+  let dinnerRecipes: Recipe[] = [];
+  let lunchRecipes: Recipe[] = [];
+  let breakfastRecipes: Recipe[] = [];
   
   try {
     const allRecipes = await getAllRecipes();
-    // Get 4 random recipes for featured section
-    const shuffled = [...allRecipes].sort(() => Math.random() - 0.5);
-    featuredRecipes = shuffled.slice(0, 4);
+    
+    // Filter recipes by category
+    dinnerRecipes = allRecipes.filter(recipe => 
+      recipe.dishCategories.some(cat => cat.toLowerCase() === 'dinner')
+    );
+    
+    lunchRecipes = allRecipes.filter(recipe => 
+      recipe.dishCategories.some(cat => cat.toLowerCase() === 'lunch')
+    );
+    
+    breakfastRecipes = allRecipes.filter(recipe => 
+      recipe.dishCategories.some(cat => cat.toLowerCase() === 'breakfast')
+    );
   } catch (error) {
     console.error('Error fetching recipes:', error);
     // If Firebase isn't configured yet, show empty state
-    featuredRecipes = [];
+    dinnerRecipes = [];
+    lunchRecipes = [];
+    breakfastRecipes = [];
   }
 
   return (
@@ -29,7 +44,7 @@ export default async function Home() {
           <div className="flex items-center justify-center gap-3 mb-6">
      
             <h1 className="text-6xl font-bold text-text-color mb-4">
-              Leona's Amazing Recipes
+              Leona's Recipes
             </h1>
           </div>
           <p className="text-xl text-text-color mb-8 max-w-2xl mx-auto">
@@ -44,29 +59,76 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Recipes Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <span className="text-text-color text-2xl">✧</span>
-            <h2 className="text-4xl font-bold text-text-color text-center">
-              Featured Recipes
-            </h2>
-            <span className="text-text-color text-2xl">✧</span>
-          </div>
-          {featuredRecipes.length > 0 ? (
+      {/* Dinner Recipes Section */}
+      {dinnerRecipes.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <span className="text-text-color text-2xl">✧</span>
+              <h2 className="text-4xl font-bold text-text-color text-center">
+                Dinner Recipes
+              </h2>
+              <span className="text-text-color text-2xl">✧</span>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredRecipes.map((recipe, index) => (
+              {dinnerRecipes.map((recipe, index) => (
                 <RecipeCard key={recipe.id} recipe={recipe} index={index} />
               ))}
             </div>
-          ) : (
+          </div>
+        </section>
+      )}
+
+      {/* Lunch Recipes Section */}
+      {lunchRecipes.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <span className="text-text-color text-2xl">✧</span>
+              <h2 className="text-4xl font-bold text-text-color text-center">
+                Lunch Recipes
+              </h2>
+              <span className="text-text-color text-2xl">✧</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {lunchRecipes.map((recipe, index) => (
+                <RecipeCard key={recipe.id} recipe={recipe} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Breakfast Recipes Section */}
+      {breakfastRecipes.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <span className="text-text-color text-2xl">✧</span>
+              <h2 className="text-4xl font-bold text-text-color text-center">
+                Breakfast Recipes
+              </h2>
+              <span className="text-text-color text-2xl">✧</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {breakfastRecipes.map((recipe, index) => (
+                <RecipeCard key={recipe.id} recipe={recipe} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Empty State */}
+      {dinnerRecipes.length === 0 && lunchRecipes.length === 0 && breakfastRecipes.length === 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
             <div className="text-center py-12">
               <p className="text-text-color text-lg">No recipes available. Please configure Firebase to see recipes.</p>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Footer Divider */}
       <div className="relative py-8 overflow-hidden mt-16">

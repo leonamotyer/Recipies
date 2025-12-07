@@ -1,15 +1,8 @@
 import Header from "@/app/components/header";
 import RecipeCard from "@/app/components/recipieCard";
-import { getAllRecipes, getRecipesByCategory, getRecipesByFilters, Recipe } from "@/lib/firebaseRecipes";
+import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
+import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
-interface RecipesPageProps {
-  searchParams: {
-    category?: string;
-    fancy?: string;
-    quick?: string;
-    cheap?: string;
-  };
-}
 
 export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   let recipes: Recipe[] = [];

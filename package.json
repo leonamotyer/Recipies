@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "import-recipes": "tsx scripts/importRecipes.ts",
-    "test-firebase": "tsx scripts/testConnection.ts"
+    "test-graphql": "tsx scripts/testGraphQL.ts",
+    "test-realtime": "tsx scripts/testRealtime.ts",
+    "check-env": "tsx scripts/checkEnv.ts"
   },
   "dependencies": {
+    "@apollo/client": "^4.0.9",
     "firebase": "^12.6.0",
+    "graphql": "^16.12.0",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
