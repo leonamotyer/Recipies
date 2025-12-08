@@ -1,9 +1,12 @@
+import { Suspense } from "react";
 import Header from "@/app/components/header";
 import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
 import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
+// Force dynamic rendering since we use searchParams
+export const dynamic = 'force-dynamic';
 
 export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   let recipes: Recipe[] = [];
@@ -86,7 +89,9 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   return (
     <main className="min-h-screen bg-primary-dark">
       <Header />
-      <Filters />
+      <Suspense fallback={<div className="bg-primary-dark/80 backdrop-blur-sm sticky top-[120px] z-40 shadow-sm"><div className="container mx-auto px-4 py-4"><div className="h-20"></div></div></div>}>
+        <Filters />
+      </Suspense>
 
       <section className="py-12">
         <div className="container mx-auto px-4">
