@@ -40,7 +40,7 @@ function transformRecipe(data: any): Recipe {
  */
 export async function getRecipeById(id: string): Promise<Recipe | null> {
   try {
-    const { data } = await apolloClient.query({
+    const { data } = await apolloClient.query<{ recipe?: any }>({
       query: GET_RECIPE_FULL,
       variables: { id },
       fetchPolicy: 'network-only',
@@ -63,19 +63,20 @@ export async function getRecipeById(id: string): Promise<Recipe | null> {
  */
 export async function getAllRecipes(): Promise<Recipe[]> {
   try {
-    const { data, error } = await apolloClient.query({
+    const { data, error } = await apolloClient.query<{ recipes?: any[] }>({
       query: GET_ALL_RECIPES,
       fetchPolicy: 'network-only',
     });
 
     if (error) {
       console.error('GraphQL Error:', error);
-      if (error.networkError) {
+      const networkError = (error as any).networkError;
+      if (networkError) {
         console.error('Network Error Details:', {
-          statusCode: (error.networkError as any).statusCode,
-          message: error.networkError.message,
+          statusCode: networkError.statusCode,
+          message: networkError.message,
         });
-        if ((error.networkError as any).statusCode === 404) {
+        if (networkError.statusCode === 404) {
           console.error('⚠️  404 Error: Data Connect service may not be deployed.');
           console.error('   Go to Firebase Console > Data Connect > Service and click "Deploy"');
         }
@@ -113,7 +114,7 @@ export async function getRecipesByCategory(category: string): Promise<Recipe[]> 
   try {
     // Try the GraphQL query first
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ recipes?: any[] }>({
         query: GET_RECIPES_BY_CATEGORY,
         variables: { category: category.toLowerCase() },
         fetchPolicy: 'network-only',
