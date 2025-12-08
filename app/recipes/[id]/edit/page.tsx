@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import Header from "@/app/components/header";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
 import EditRecipeForm from "@/app/components/editRecipeForm";
 import type { Recipe } from "@/lib/data.types";
@@ -52,31 +53,33 @@ export default async function EditRecipePage({ params }: EditRecipePageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-primary-dark">
-      <Header />
+    <ProtectedRoute>
+      <main className="min-h-screen bg-primary-dark">
+        <Header />
 
-      <section className="py-8 sm:py-10 md:py-12">
-        <div className="container mx-auto px-4 max-w-4xl">
-          {/* Back Button */}
-          <div className="mb-4 sm:mb-6">
-            <Link
-              href={`/recipes/${params.id}`}
-              className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
-            >
-              ← Back to Recipe
-            </Link>
-          </div>
+        <section className="py-8 sm:py-10 md:py-12">
+          <div className="container mx-auto px-4 max-w-4xl">
+            {/* Back Button */}
+            <div className="mb-4 sm:mb-6">
+              <Link
+                href={`/recipes/${params.id}`}
+                className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
+              >
+                ← Back to Recipe
+              </Link>
+            </div>
 
-          {/* Edit Form */}
-          <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-color mb-6 sm:mb-8 text-center">
-              Edit Recipe
-            </h1>
-            <EditRecipeForm recipe={recipe} />
+            {/* Edit Form */}
+            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-color mb-6 sm:mb-8 text-center">
+                Edit Recipe
+              </h1>
+              <EditRecipeForm recipe={recipe} />
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </ProtectedRoute>
   );
 }
 

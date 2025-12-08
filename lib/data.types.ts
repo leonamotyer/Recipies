@@ -85,6 +85,9 @@ export interface Image {
   
   /** Optional image description */
   description?: string;
+  
+  /** Email of the user who uploaded the image */
+  uploadedBy?: string;
 }
 
 /**

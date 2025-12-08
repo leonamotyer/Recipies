@@ -1,6 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import Header from "@/app/components/header";
+import ProtectedEditButton from "@/app/components/ProtectedEditButton";
+import AddPhotoButton from "@/app/components/AddPhotoButton";
 import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe } from "@/lib/data.types";
 
@@ -69,12 +72,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
             >
               ← Back to Recipes
             </Link>
-            <Link
-              href={`/recipes/${params.id}/edit`}
-              className="link-style-button font-semibold text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
-            >
-              Edit Recipe
-            </Link>
+            <ProtectedEditButton recipeId={params.id} />
           </div>
 
           {/* Recipe Header */}
@@ -104,6 +102,42 @@ export default async function RecipePage({ params }: RecipePageProps) {
               </div>
             )}
           </div>
+
+          {/* Images Section */}
+          {(recipe.images && recipe.images.length > 0) && (
+            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-text-color">Photos</h2>
+                <AddPhotoButton recipe={recipe} />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {recipe.images.map((image, index) => (
+                  <div key={image.id || index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-200 group">
+                    <Image
+                      src={image.imageUrl}
+                      alt={`${recipe.title} - Photo ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    />
+                    {image.uploadedBy && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Uploaded by: {image.uploadedBy}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add Photo Button (if no images exist) */}
+          {(!recipe.images || recipe.images.length === 0) && (
+            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-color mb-4">Photos</h2>
+              <AddPhotoButton recipe={recipe} />
+            </div>
+          )}
 
           {/* Ingredients Section */}
           {recipe.ingredients && recipe.ingredients.length > 0 && (

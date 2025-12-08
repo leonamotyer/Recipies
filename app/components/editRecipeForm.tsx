@@ -4,6 +4,7 @@ import { useState, FormEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { updateRecipeAction } from '@/app/actions';
 import { uploadRecipeImage } from '@/lib/firebaseStorage';
 import type { Recipe, Ingredient, Image as RecipeImage } from '@/lib/data.types';
@@ -14,6 +15,7 @@ interface EditRecipeFormProps {
 
 export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -23,7 +25,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const [cookingDescription, setCookingDescription] = useState(recipe.cookingDescription || '');
   const [dishCategories, setDishCategories] = useState<string[]>(recipe.dishCategories || []);
   const [ingredients, setIngredients] = useState<Ingredient[]>(recipe.ingredients || []);
-  const [images, setImages] = useState<string[]>(recipe.images?.map(img => img.imageUrl) || []);
+  const [images, setImages] = useState<RecipeImage[]>(recipe.images || []);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,7 +88,15 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
 
     try {
       const imageUrl = await uploadRecipeImage(file, recipe.id);
-      setImages(prev => [...prev, imageUrl]);
+      
+      // Create new image object with uploader email
+      const newImage: RecipeImage = {
+        id: `img-${Date.now()}`,
+        imageUrl: imageUrl,
+        uploadedBy: user?.email || undefined,
+      };
+      
+      setImages(prev => [...prev, newImage]);
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -113,11 +123,8 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
         ing => ing.ingredientName.trim() && ing.measurement.trim()
       );
 
-      // Convert image URLs to Image objects
-      const imageObjects: RecipeImage[] = images.map((url, index) => ({
-        id: `img-${index}`,
-        imageUrl: url,
-      }));
+      // Images are already Image objects with metadata
+      const imageObjects: RecipeImage[] = images;
 
       const result = await updateRecipeAction(recipe.id, {
         title,
@@ -168,16 +175,22 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
       {/* Cook Time */}
       <div>
         <label htmlFor="cookTime" className="block text-text-color font-semibold mb-2">
-          Cook Time (minutes)
+          Cook Time
         </label>
-        <input
-          type="number"
+        <select
           id="cookTime"
           value={cookTime}
           onChange={(e) => setCookTime(parseInt(e.target.value) || 0)}
-          min="0"
-          className="filter-input w-full px-4 py-2 rounded-lg text-text-color"
-        />
+          className="filter-input w-full px-4 py-2 rounded-lg text-text-color cursor-pointer"
+        >
+          <option value="0">0 mins</option>
+          <option value="5">5 mins</option>
+          {Array.from({ length: 20 }, (_, i) => (i + 1) * 15).map((minutes) => (
+            <option key={minutes} value={minutes}>
+              {minutes} mins
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Cooking Description */}
@@ -246,17 +259,22 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
           {/* Image Preview Grid */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {images.map((imageUrl, index) => (
-                <div key={index} className="relative group">
+              {images.map((image, index) => (
+                <div key={image.id || index} className="relative group">
                   <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-200">
                     <Image
-                      src={imageUrl}
+                      src={image.imageUrl}
                       alt={`Recipe image ${index + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                     />
                   </div>
+                  {image.uploadedBy && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Uploaded by: {image.uploadedBy}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(index)}

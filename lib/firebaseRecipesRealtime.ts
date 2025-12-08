@@ -20,14 +20,23 @@ function transformRecipe(data: any, id: string): Recipe {
     });
   }
   
-  // Transform images from array of URLs or single URL
+  // Transform images from array of objects or URLs
   const images: any[] = [];
   if (data.image_urls && Array.isArray(data.image_urls)) {
-    data.image_urls.forEach((url: string, index: number) => {
-      images.push({
-        id: `img-${index}`,
-        imageUrl: url,
-      });
+    data.image_urls.forEach((item: any, index: number) => {
+      // Handle both object format {imageUrl, uploadedBy} and string format
+      if (typeof item === 'string') {
+        images.push({
+          id: `img-${index}`,
+          imageUrl: item,
+        });
+      } else if (item && typeof item === 'object') {
+        images.push({
+          id: item.id || `img-${index}`,
+          imageUrl: item.imageUrl || item.image_url || item,
+          uploadedBy: item.uploadedBy || item.uploaded_by,
+        });
+      }
     });
   } else if (data.image_url && typeof data.image_url === 'string') {
     // Handle single image URL
@@ -266,10 +275,13 @@ export async function updateRecipe(id: string, recipeData: Partial<Recipe>): Pro
       firebaseData.ingredients = ingredientsObj;
     }
     
-    // Handle images - store as array of image URLs
+    // Handle images - store as array of image objects with metadata
     if (recipeData.images !== undefined) {
-      const imageUrls = recipeData.images.map(img => img.imageUrl);
-      firebaseData.image_urls = imageUrls;
+      const imageData = recipeData.images.map(img => ({
+        imageUrl: img.imageUrl,
+        uploadedBy: img.uploadedBy,
+      }));
+      firebaseData.image_urls = imageData;
     }
     
     // Update the recipe in the database
