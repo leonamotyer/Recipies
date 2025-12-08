@@ -26,16 +26,16 @@ export default function Header() {
                 All
               </Link>
               <Link 
-                href="/recipes?category=Main Course" 
+                href="/recipes?category=main course" 
                 className="text-text-color hover:text-secondary-dark font-medium px-3 py-1 rounded-full hover:bg-primary-dark/10"
               >
                 Mains
               </Link>
               <Link 
-                href="/recipes?category=Dessert" 
+                href="/recipes?category=desert" 
                 className="text-text-color hover:text-secondary-dark font-medium px-3 py-1 rounded-full hover:bg-primary-dark/10"
               >
-                Deserts
+                Desserts
               </Link>
               <a 
                 href="https://motyer.ca" 

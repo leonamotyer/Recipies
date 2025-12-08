@@ -41,12 +41,22 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
 
     // Apply category filter
     if (searchParams.category) {
+      const categoryLower = searchParams.category.toLowerCase();
       allRecipes = allRecipes.filter(recipe => 
-        recipe.dishCategories.some(cat => 
-          cat.toLowerCase() === searchParams.category?.toLowerCase()
-        )
+        recipe.dishCategories.some(cat => {
+          const catLower = cat.toLowerCase();
+          // Match exact or if search term is contained in category (e.g., "main" matches "main course")
+          return catLower === categoryLower || catLower.includes(categoryLower) || categoryLower.includes(catLower);
+        })
       );
-      pageTitle = `${searchParams.category} Recipes`;
+      // Capitalize category name for display
+      const categoryWords = searchParams.category.toLowerCase().split(' ');
+      const capitalizedCategory = categoryWords
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      // Convert "desert" (database spelling) to "Desserts" (correct spelling) for display
+      const displayCategory = capitalizedCategory === 'Desert' ? 'Desserts' : capitalizedCategory;
+      pageTitle = `${displayCategory} Recipes`;
     }
 
     // Apply tag filters (fancy, quick, cheap)
