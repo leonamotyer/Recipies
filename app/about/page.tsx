@@ -15,7 +15,7 @@ export default function AboutPage() {
           <div className="bg-white rounded-2xl p-10 space-y-6">
             <p className="text-lg text-text-color leading-relaxed">
               Welcome to RecipeHub, your go-to destination for discovering and sharing
-              amazing recipes from around the world. Whether you're a seasoned chef or
+              amazing recipes from around the world. Whether you&apos;re a seasoned chef or
               just starting your culinary journey, we have something for everyone.
             </p>
             

@@ -44,11 +44,11 @@ export default async function Home() {
           <div className="flex items-center justify-center gap-3 mb-6">
      
             <h1 className="text-6xl font-bold text-text-color mb-4">
-              Leona's Recipes
+              Leona&apos;s Recipes
             </h1>
           </div>
           <p className="text-xl text-text-color mb-8 max-w-2xl mx-auto">
-           Recipies that I've collected over the years!
+           Recipies that I&apos;ve collected over the years!
           </p>
           <Link
             href="/recipes"
