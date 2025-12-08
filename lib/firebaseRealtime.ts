@@ -4,18 +4,16 @@ import { getDatabase, ref, get, child, Database } from 'firebase/database';
 // Get database URL and clean it up (remove quotes, trailing slashes, handle colon syntax)
 const getDatabaseURL = () => {
   // Try multiple environment variable names
-  let url = process.env.NEXT_PUBLIC_FIREBASE_URL || 
-            process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || 
-            process.env.FIREBASE_URL || 
-            '';
+  const rawUrl = process.env.NEXT_PUBLIC_FIREBASE_URL || 
+                 process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || 
+                 process.env.FIREBASE_URL || 
+                 '';
   
-  // Debug: log what we got
-  if (typeof window === 'undefined') {
-    console.log('Raw database URL from env:', url);
-  }
+  let url = rawUrl;
+  let wasConstructed = false;
   
   // Handle colon syntax (NEXT_PUBLIC_FIREBASE_URL:"value")
-  if (url.includes(':') && !url.startsWith('http')) {
+  if (url && url.includes(':') && !url.startsWith('http')) {
     const parts = url.split(':');
     if (parts.length > 1) {
       url = parts.slice(1).join(':').trim();
@@ -37,11 +35,13 @@ const getDatabaseURL = () => {
   // If still empty, try to construct from project ID
   if (!url && process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
     url = `https://${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`;
-    if (typeof window === 'undefined') {
-      console.log('⚠️  NEXT_PUBLIC_FIREBASE_URL not found, using default:', url);
-      console.log('   To fix: Update .env file to use = instead of :');
-      console.log('   Change: NEXT_PUBLIC_FIREBASE_URL:"..."');
-      console.log('   To:     NEXT_PUBLIC_FIREBASE_URL=https://...');
+    wasConstructed = true;
+    
+    // Only warn in development mode
+    if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+      console.warn('⚠️  NEXT_PUBLIC_FIREBASE_URL not found, using constructed URL:', url);
+      console.warn('   To fix: Add NEXT_PUBLIC_FIREBASE_URL to your .env file');
+      console.warn('   Example: NEXT_PUBLIC_FIREBASE_URL=https://leonasrecipes-6f85a-default-rtdb.firebaseio.com');
     }
   }
   
@@ -53,10 +53,6 @@ Please check your .env file and ensure NEXT_PUBLIC_FIREBASE_URL is set correctly
 Example: NEXT_PUBLIC_FIREBASE_URL=https://leonasrecipes-6f85a-default-rtdb.firebaseio.com`;
     console.error(errorMsg);
     throw new Error(errorMsg);
-  }
-  
-  if (typeof window === 'undefined') {
-    console.log('Using database URL:', url);
   }
   
   return url;
