@@ -139,3 +139,37 @@ a:hover::after {
     background: var(--secondary-dark);
     opacity: 0.9;
 }
+
+/* Link-style Button (for buttons that should look like links) */
+.link-style-button {
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.link-style-button:hover:not(:disabled) {
+    color: var(--secondary-dark);
+    animation: continuousZoom 2s ease-in-out infinite;
+}
+
+.link-style-button:hover:not(:disabled)::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 4px;
+    background: #d3d3d3;
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+.link-style-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

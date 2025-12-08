@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/app/components/header";
 import RecipeCard from "@/app/components/recipieCard";
+import RegenerateButton from "@/app/components/regenerateButton";
 import { getAllRecipes } from "@/lib/firebaseRecipesRealtime";
 import { unstable_cache } from "next/cache";
 import type { Recipe } from "@/lib/data.types";
@@ -72,6 +73,7 @@ export default async function Home() {
                 <RecipeCard key={recipe.id} recipe={recipe} index={index} />
               ))}
             </div>
+            <RegenerateButton />
           </div>
         </section>
       )}

@@ -21,8 +21,9 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
     ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
     : "Recipe";
   
-  // Use computed time or format from cookTime
-  const displayTime = recipe.time || (recipe.cookTime ? `${recipe.cookTime} min` : 'Time not specified');
+  // Use computed time or format from cookTime, only if cookTime is valid (> 0)
+  const hasValidTime = recipe.cookTime && recipe.cookTime > 0;
+  const displayTime = hasValidTime ? (recipe.time || `${recipe.cookTime} min`) : null;
   
   // Use description or cookingDescription
   const displayDescription = recipe.description || recipe.cookingDescription;
@@ -42,9 +43,11 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
           <h3 className="text-lg sm:text-xl font-semibold text-text-color group-hover:text-secondary-light flex-1 pr-2 break-words">
             {recipe.title}
           </h3>
-          <span className="text-xs sm:text-sm text-text-color font-medium whitespace-nowrap flex-shrink-0">
-            {displayTime}
-          </span>
+          {displayTime && (
+            <span className="text-xs sm:text-sm text-text-color font-medium whitespace-nowrap flex-shrink-0">
+              {displayTime}
+            </span>
+          )}
         </div>
         
         {/* Category badge */}

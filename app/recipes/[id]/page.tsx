@@ -34,7 +34,9 @@ export default async function RecipePage({ params }: RecipePageProps) {
     );
   }
 
-  const displayTime = recipe.time || (recipe.cookTime ? `${recipe.cookTime} min` : 'Time not specified');
+  // Only show time if cookTime is valid (> 0)
+  const hasValidTime = recipe.cookTime && recipe.cookTime > 0;
+  const displayTime = hasValidTime ? (recipe.time || `${recipe.cookTime} min`) : null;
   const categories = recipe.dishCategories || recipe.categories || [];
 
   return (
@@ -59,9 +61,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text-color mb-2 break-words">
                 {recipe.title}
               </h1>
-              <span className="text-base sm:text-lg text-text-color font-medium">
-                {displayTime}
-              </span>
+              {displayTime && (
+                <span className="text-base sm:text-lg text-text-color font-medium">
+                  {displayTime}
+                </span>
+              )}
             </div>
 
             {/* Categories */}
