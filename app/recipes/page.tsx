@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
@@ -7,6 +8,11 @@ import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
 // Force dynamic rendering since we use searchParams
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: "All Recipes | Leona's Recipes",
+  description: "Browse all recipes from Leona's collection",
+};
 
 export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   let recipes: Recipe[] = [];

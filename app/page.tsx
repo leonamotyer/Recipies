@@ -1,11 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import RecipeCard from "@/app/components/recipieCard";
 import RegenerateButton from "@/app/components/regenerateButton";
 import { getAllRecipes } from "@/lib/firebaseRecipesRealtime";
 import { unstable_cache } from "next/cache";
 import type { Recipe } from "@/lib/data.types";
+
+export const metadata: Metadata = {
+  title: "Leona's Recipes",
+  description: "Recipes that I've collected over the years!",
+};
 
 // Helper function to shuffle array and get random items
 function getRandomRecipes(recipes: Recipe[], count: number): Recipe[] {

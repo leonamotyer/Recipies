@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe } from "@/lib/data.types";
@@ -6,6 +7,21 @@ import type { Recipe } from "@/lib/data.types";
 interface RecipePageProps {
   params: {
     id: string;
+  };
+}
+
+export async function generateMetadata({ params }: RecipePageProps): Promise<Metadata> {
+  const recipe = await getRecipeById(params.id);
+  
+  if (!recipe) {
+    return {
+      title: "Recipe Not Found | Leona's Recipes",
+    };
+  }
+  
+  return {
+    title: `${recipe.title} | Leona's Recipes`,
+    description: recipe.description || recipe.cookingDescription || `View the recipe for ${recipe.title}`,
   };
 }
 
