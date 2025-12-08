@@ -97,17 +97,17 @@ export default function Filters() {
   }, [searchParams]);
 
   return (
-    <div className="bg-primary-dark/80 backdrop-blur-sm sticky top-[120px] z-40 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
+    <div className="bg-primary-dark/80 backdrop-blur-sm z-40 shadow-sm">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
         {/* Search Bar */}
         <div className="mb-4">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search recipes by title, ingredients, or description..."
+              placeholder="Search recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="filter-input w-full px-6 py-3 rounded-full text-text-color placeholder:text-text-color/50 font-medium bg-primary-dark"
+              className="filter-input w-full px-4 sm:px-6 py-2 sm:py-3 rounded-full text-text-color placeholder:text-text-color/50 font-medium bg-primary-dark text-sm sm:text-base"
             />
             {searchQuery && (
               <button
@@ -125,14 +125,14 @@ export default function Filters() {
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center">
           {/* Time Filter */}
-          <div className="flex items-center gap-2">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm">Time:</label>
+          <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Time:</label>
             <select
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
-              className="filter-input px-4 py-2 rounded-full text-text-color font-medium cursor-pointer min-w-[140px] bg-primary-dark"
+              className="filter-input px-3 sm:px-4 py-2 rounded-full text-text-color font-medium cursor-pointer w-full sm:min-w-[140px] bg-primary-dark text-sm sm:text-base"
             >
               <option value="">Any Time</option>
               {timeRanges.map((range) => (
@@ -142,12 +142,12 @@ export default function Filters() {
           </div>
 
           {/* Category Filter */}
-          <div className="flex items-center gap-2">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm">Category:</label>
+          <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Category:</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="filter-input px-4 py-2 rounded-full text-text-color font-medium cursor-pointer min-w-[140px] bg-primary-dark"
+              className="filter-input px-3 sm:px-4 py-2 rounded-full text-text-color font-medium cursor-pointer w-full sm:min-w-[140px] bg-primary-dark text-sm sm:text-base"
             >
               <option value="">All Categories</option>
               {categories.map((cat) => (
@@ -158,10 +158,10 @@ export default function Filters() {
 
           {/* Tag Filters */}
           <div className="flex items-center gap-2 flex-wrap flex-1">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm">Tags:</label>
+            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Tags:</label>
             <button
               onClick={() => setFancy(!fancy)}
-              className={`filter-button px-4 py-2 rounded-full font-medium transition-all ${
+              className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
                 fancy ? 'active' : ''
               }`}
             >
@@ -169,7 +169,7 @@ export default function Filters() {
             </button>
             <button
               onClick={() => setQuick(!quick)}
-              className={`filter-button px-4 py-2 rounded-full font-medium transition-all ${
+              className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
                 quick ? 'active' : ''
               }`}
             >
@@ -177,7 +177,7 @@ export default function Filters() {
             </button>
             <button
               onClick={() => setCheap(!cheap)}
-              className={`filter-button px-4 py-2 rounded-full font-medium transition-all ${
+              className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
                 cheap ? 'active' : ''
               }`}
             >
@@ -187,10 +187,10 @@ export default function Filters() {
 
           {/* Clear Button */}
           {(searchQuery || selectedCategory || selectedTime || fancy || quick || cheap) && (
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
               <button
                 onClick={clearFilters}
-                className="filter-button px-4 py-2 rounded-full font-medium"
+                className="filter-button px-3 sm:px-4 py-2 rounded-full font-medium text-sm sm:text-base w-full sm:w-auto"
               >
                 Clear All
               </button>

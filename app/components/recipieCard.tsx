@@ -36,13 +36,13 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
       <div className={`h-48 ${getBackgroundColor(index)}`}></div>
       
       {/* Content section with third-light background */}
-      <div className="p-6 bg-third-light">
+      <div className="p-4 sm:p-5 md:p-6 bg-third-light">
         {/* Title and cook time in right corner under the image */}
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-xl font-semibold text-text-color group-hover:text-secondary-light flex-1 pr-2">
+        <div className="flex items-start justify-between mb-2 gap-2">
+          <h3 className="text-lg sm:text-xl font-semibold text-text-color group-hover:text-secondary-light flex-1 pr-2 break-words">
             {recipe.title}
           </h3>
-          <span className="text-sm text-text-color font-medium whitespace-nowrap">
+          <span className="text-xs sm:text-sm text-text-color font-medium whitespace-nowrap flex-shrink-0">
             {displayTime}
           </span>
         </div>
@@ -50,7 +50,7 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
         {/* Category badge */}
         {displayCategory && (
           <div className="mb-2">
-            <span className="text-sm text-primary-dark font-semibold bg-third-light px-3 py-1 rounded-full">
+            <span className="text-xs sm:text-sm text-primary-dark font-semibold bg-third-light px-2 sm:px-3 py-1 rounded-full">
               {displayCategory}
             </span>
           </div>
@@ -58,7 +58,7 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
         
         {/* Description if available */}
         {displayDescription && (
-          <p className="text-text-color mb-4 text-sm line-clamp-2">
+          <p className="text-text-color mb-4 text-xs sm:text-sm line-clamp-2">
             {displayDescription}
           </p>
         )}

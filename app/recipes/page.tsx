@@ -89,16 +89,16 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   return (
     <main className="min-h-screen bg-primary-dark">
       <Header />
-      <Suspense fallback={<div className="bg-primary-dark/80 backdrop-blur-sm sticky top-[120px] z-40 shadow-sm"><div className="container mx-auto px-4 py-4"><div className="h-20"></div></div></div>}>
+      <Suspense fallback={<div className="bg-primary-dark/80 backdrop-blur-sm z-40 shadow-sm"><div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4"><div className="h-16 sm:h-20"></div></div></div>}>
         <Filters />
       </Suspense>
 
-      <section className="py-12">
+      <section className="py-8 sm:py-10 md:py-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold text-text-color mb-12 text-center">{pageTitle}</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-color mb-6 sm:mb-8 md:mb-12 text-center px-4">{pageTitle}</h1>
           
           {recipes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {recipes.map((recipe, index) => (
                 <RecipeCard key={recipe.id} recipe={recipe} index={index} />
               ))}

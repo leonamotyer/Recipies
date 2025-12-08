@@ -41,25 +41,25 @@ export default async function RecipePage({ params }: RecipePageProps) {
     <main className="min-h-screen bg-primary-dark">
       <Header />
 
-      <section className="py-12">
+      <section className="py-8 sm:py-10 md:py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Back Button */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Link
               href="/recipes"
-              className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium"
+              className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
             >
               ← Back to Recipes
             </Link>
           </div>
 
           {/* Recipe Header */}
-          <div className="bg-gray-300 rounded-2xl p-8 mb-8">
+          <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
             <div className="text-center mb-4">
-              <h1 className="text-6xl font-bold text-text-color mb-2">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text-color mb-2 break-words">
                 {recipe.title}
               </h1>
-              <span className="text-lg text-text-color font-medium">
+              <span className="text-base sm:text-lg text-text-color font-medium">
                 {displayTime}
               </span>
             </div>
@@ -81,11 +81,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
 
           {/* Ingredients Section */}
           {recipe.ingredients && recipe.ingredients.length > 0 && (
-            <div className="bg-gray-300 rounded-2xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-text-color mb-4">Ingredients</h2>
+            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-color mb-4">Ingredients</h2>
               <ul className="space-y-2">
                 {recipe.ingredients.map((ingredient) => (
-                  <li key={ingredient.id} className="text-text-color text-lg">
+                  <li key={ingredient.id} className="text-text-color text-base sm:text-lg">
                     <span className="font-medium">{ingredient.ingredientName}:</span> {ingredient.measurement}
                   </li>
                 ))}
@@ -95,9 +95,9 @@ export default async function RecipePage({ params }: RecipePageProps) {
 
           {/* Instructions Section */}
           {recipe.cookingDescription && (
-            <div className="bg-gray-300 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-text-color mb-4">Instructions</h2>
-              <div className="text-text-color text-lg whitespace-pre-line leading-relaxed">
+            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-color mb-4">Instructions</h2>
+              <div className="text-text-color text-base sm:text-lg whitespace-pre-line leading-relaxed">
                 {recipe.cookingDescription}
               </div>
             </div>
