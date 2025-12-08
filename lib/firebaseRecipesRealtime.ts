@@ -1,5 +1,5 @@
 import { db } from './firebaseRealtime';
-import { ref, get, child } from 'firebase/database';
+import { ref, get, update } from 'firebase/database';
 import type { Recipe, Ingredient, RecipeFilters } from './data.types';
 
 // Helper function to transform Realtime Database data to Recipe
@@ -20,6 +20,23 @@ function transformRecipe(data: any, id: string): Recipe {
     });
   }
   
+  // Transform images from array of URLs or single URL
+  const images: any[] = [];
+  if (data.image_urls && Array.isArray(data.image_urls)) {
+    data.image_urls.forEach((url: string, index: number) => {
+      images.push({
+        id: `img-${index}`,
+        imageUrl: url,
+      });
+    });
+  } else if (data.image_url && typeof data.image_url === 'string') {
+    // Handle single image URL
+    images.push({
+      id: 'img-0',
+      imageUrl: data.image_url,
+    });
+  }
+  
   return {
     id: id,
     title: data.title || '',
@@ -27,6 +44,7 @@ function transformRecipe(data: any, id: string): Recipe {
     cookingDescription: data.instructions || '',
     dishCategories: dishCategories,
     ingredients: ingredients,
+    images: images.length > 0 ? images : undefined,
     // Computed fields
     time: `${data.cook_time_minutes || 0} min`,
     description: data.instructions || '',
@@ -164,6 +182,104 @@ export async function getRecipesByFilters(filters: RecipeFilters): Promise<Recip
     });
   } catch (error) {
     console.error('Error getting recipes by filters:', error);
+    throw error;
+  }
+}
+
+/**
+ * Helper function to find the database key for a recipe by ID
+ * @param id - The recipe ID to find
+ * @returns The database key (e.g., "0", "1", etc.) or null if not found
+ */
+async function findRecipeKey(id: string): Promise<string | null> {
+  try {
+    const rootRef = ref(db, '/');
+    const snapshot = await get(rootRef);
+    
+    if (!snapshot.exists()) {
+      return null;
+    }
+    
+    const rootData = snapshot.val();
+    
+    // Search for recipe with matching recipe_id or key
+    for (const key of Object.keys(rootData)) {
+      const item = rootData[key];
+      if (item && typeof item === 'object') {
+        const recipeId = item.recipe_id !== undefined ? String(item.recipe_id) : key;
+        if (recipeId === id || key === id) {
+          return key;
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error finding recipe key:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update a recipe in the database
+ * @param id - The recipe ID
+ * @param recipeData - The updated recipe data
+ * @returns The updated recipe or null if not found
+ */
+export async function updateRecipe(id: string, recipeData: Partial<Recipe>): Promise<Recipe | null> {
+  try {
+    // Find the database key for this recipe
+    const recipeKey = await findRecipeKey(id);
+    
+    if (!recipeKey) {
+      console.error(`Recipe with ID ${id} not found`);
+      return null;
+    }
+    
+    // Transform Recipe data back to Firebase format
+    const firebaseData: any = {};
+    
+    if (recipeData.title !== undefined) {
+      firebaseData.title = recipeData.title;
+    }
+    
+    if (recipeData.cookTime !== undefined) {
+      firebaseData.cook_time_minutes = recipeData.cookTime;
+    }
+    
+    if (recipeData.cookingDescription !== undefined) {
+      firebaseData.instructions = recipeData.cookingDescription;
+    }
+    
+    if (recipeData.dishCategories !== undefined) {
+      firebaseData.dish_category = recipeData.dishCategories;
+    }
+    
+    // Transform ingredients array back to object format
+    if (recipeData.ingredients !== undefined) {
+      const ingredientsObj: Record<string, string> = {};
+      recipeData.ingredients.forEach(ing => {
+        // Convert ingredient name back to key format (spaces to underscores)
+        const key = ing.ingredientName.replace(/\s+/g, '_');
+        ingredientsObj[key] = ing.measurement;
+      });
+      firebaseData.ingredients = ingredientsObj;
+    }
+    
+    // Handle images - store as array of image URLs
+    if (recipeData.images !== undefined) {
+      const imageUrls = recipeData.images.map(img => img.imageUrl);
+      firebaseData.image_urls = imageUrls;
+    }
+    
+    // Update the recipe in the database
+    const recipeRef = ref(db, `/${recipeKey}`);
+    await update(recipeRef, firebaseData);
+    
+    // Fetch and return the updated recipe
+    return await getRecipeById(id);
+  } catch (error) {
+    console.error('Error updating recipe:', error);
     throw error;
   }
 }

@@ -61,13 +61,19 @@ export default async function RecipePage({ params }: RecipePageProps) {
 
       <section className="py-8 sm:py-10 md:py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          {/* Back Button */}
-          <div className="mb-4 sm:mb-6">
+          {/* Back Button and Edit Button */}
+          <div className="mb-4 sm:mb-6 flex items-center justify-between">
             <Link
               href="/recipes"
               className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
             >
               ← Back to Recipes
+            </Link>
+            <Link
+              href={`/recipes/${params.id}/edit`}
+              className="link-style-button font-semibold text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
+            >
+              Edit Recipe
             </Link>
           </div>
 
