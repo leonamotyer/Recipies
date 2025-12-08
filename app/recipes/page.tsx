@@ -1,4 +1,5 @@
 import Header from "@/app/components/header";
+import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
 import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe, RecipesPageProps } from "@/lib/data.types";
@@ -9,20 +10,63 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   let pageTitle = "All Recipes";
 
   try {
-    // Filter recipes based on search params
+    let allRecipes = await getAllRecipes();
+    
+    // Apply search filter if provided
+    if (searchParams.search) {
+      const searchLower = searchParams.search.toLowerCase();
+      allRecipes = allRecipes.filter(recipe => 
+        recipe.title.toLowerCase().includes(searchLower) ||
+        recipe.description?.toLowerCase().includes(searchLower) ||
+        recipe.cookingDescription?.toLowerCase().includes(searchLower) ||
+        recipe.ingredients?.some(ing => 
+          ing.ingredientName.toLowerCase().includes(searchLower) ||
+          ing.measurement.toLowerCase().includes(searchLower)
+        )
+      );
+    }
+
+    // Apply time filter if provided
+    if (searchParams.time) {
+      const timeValue = searchParams.time;
+      allRecipes = allRecipes.filter(recipe => {
+        const cookTime = recipe.cookTime || 0;
+        if (timeValue === '15') return cookTime < 15;
+        if (timeValue === '30') return cookTime >= 15 && cookTime <= 30;
+        if (timeValue === '60') return cookTime > 30 && cookTime <= 60;
+        if (timeValue === '60+') return cookTime > 60;
+        return true;
+      });
+    }
+
+    // Apply category filter
     if (searchParams.category) {
-      recipes = await getRecipesByCategory(searchParams.category);
+      allRecipes = allRecipes.filter(recipe => 
+        recipe.dishCategories.some(cat => 
+          cat.toLowerCase() === searchParams.category?.toLowerCase()
+        )
+      );
       pageTitle = `${searchParams.category} Recipes`;
-    } else if (searchParams.fancy || searchParams.quick || searchParams.cheap) {
+    }
+
+    // Apply tag filters (fancy, quick, cheap)
+    if (searchParams.fancy || searchParams.quick || searchParams.cheap) {
       const filters: { fancy?: boolean; quick?: boolean; cheap?: boolean } = {};
       if (searchParams.fancy === 'true') filters.fancy = true;
       if (searchParams.quick === 'true') filters.quick = true;
       if (searchParams.cheap === 'true') filters.cheap = true;
-      recipes = await getRecipesByFilters(filters);
-      pageTitle = "Filtered Recipes";
-    } else {
-      recipes = await getAllRecipes();
+      
+      const filteredByTags = await getRecipesByFilters(filters);
+      // Combine with already filtered recipes
+      const filteredIds = new Set(filteredByTags.map(r => r.id));
+      allRecipes = allRecipes.filter(r => filteredIds.has(r.id));
+      
+      if (!searchParams.category) {
+        pageTitle = "Filtered Recipes";
+      }
     }
+
+    recipes = allRecipes;
   } catch (error) {
     console.error('Error fetching recipes:', error);
     // If Firebase isn't configured yet, show empty state
@@ -32,6 +76,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   return (
     <main className="min-h-screen bg-primary-dark">
       <Header />
+      <Filters />
 
       <section className="py-12">
         <div className="container mx-auto px-4">

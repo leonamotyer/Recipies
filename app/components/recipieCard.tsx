@@ -30,13 +30,13 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
   return (
     <Link
       href={`/recipes/${recipe.id}`}
-      className="bg-secondary-dark rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300 block group"
+      className="bg-third-light rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300 block group"
     >
       {/* Image at the top */}
       <div className={`h-48 ${getBackgroundColor(index)}`}></div>
       
-      {/* Content section with secondary-dark background */}
-      <div className="p-6 bg-secondary-dark">
+      {/* Content section with third-light background */}
+      <div className="p-6 bg-third-light">
         {/* Title and cook time in right corner under the image */}
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-xl font-semibold text-text-color group-hover:text-secondary-light flex-1 pr-2">

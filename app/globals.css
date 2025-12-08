@@ -4,10 +4,10 @@
 
 :root {
   --primary-light: #c4cad0;
-  --secondary-light: #b39eb5;
+  --secondary-light: #c6afb1;
   --primary-dark: #655560;
-  --secondary-dark: #878c8f;
-  --third-light: #fcf7ff;
+  --secondary-dark: #80A1C1;
+  --third-light: #ffd4d4;
   --black: #000000;
   --white: #FFFFFF;
   --text-color: #000000;
@@ -94,4 +94,48 @@ a:hover::after {
     background: #d3d3d3;
     border-radius: 50%;
     opacity: 0.6;
+}
+
+/* Filter Input Styles */
+.filter-input {
+    background: var(--primary-dark);
+    border: 2px solid var(--secondary-dark);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 2px rgba(128, 161, 193, 0.2);
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--secondary-dark);
+    box-shadow: 0 0 0 3px rgba(128, 161, 193, 0.3);
+}
+
+.filter-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Filter Button Styles */
+.filter-button {
+    background: var(--primary-dark);
+    border: 1px solid rgba(101, 85, 96, 0.3);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+    background: rgba(101, 85, 96, 0.1);
+    border-color: var(--secondary-dark);
+    color: var(--secondary-dark);
+}
+
+.filter-button.active {
+    background: var(--secondary-dark);
+    color: var(--white);
+    border-color: var(--secondary-dark);
+}
+
+.filter-button.active:hover {
+    background: var(--secondary-dark);
+    opacity: 0.9;
 }

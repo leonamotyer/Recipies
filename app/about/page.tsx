@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Header from "@/app/components/header";
+import Filters from "@/app/components/filters";
 
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-primary-dark">
       <Header />
+      <Filters />
 
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-3xl">

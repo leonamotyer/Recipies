@@ -37,24 +37,6 @@ export default function Header() {
               >
                 Deserts
               </Link>
-              <Link 
-                href="/recipes?fancy=true" 
-                className="text-text-color hover:text-secondary-dark font-medium px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                Fancy
-              </Link>
-              <Link 
-                href="/recipes?quick=true" 
-                className="text-text-color hover:text-secondary-dark font-medium px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                Quick
-              </Link>
-              <Link 
-                href="/recipes?cheap=true" 
-                className="text-text-color hover:text-secondary-dark font-medium px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                Cheap
-              </Link>
               <a 
                 href="https://motyer.ca" 
                 target="_blank"

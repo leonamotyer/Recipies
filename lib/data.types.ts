@@ -167,8 +167,14 @@ export interface RecipeCardProps {
 export interface RecipesPageProps {
   /** Search parameters from URL */
   searchParams: {
+    /** Search query for title, description, ingredients */
+    search?: string;
+    
     /** Filter by category */
     category?: string;
+    
+    /** Filter by time range */
+    time?: string;
     
     /** Filter by fancy flag */
     fancy?: string;
