@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   description: "Browse all recipes from Leona's collection",
 };
 
-export default async function RecipesPage({ searchParams }: RecipesPageProps) {
+export default async function RecipesPage(props: RecipesPageProps) {
+  const searchParams = await props.searchParams;
   let recipes: Recipe[] = [];
   let pageTitle = "All Recipes";
 

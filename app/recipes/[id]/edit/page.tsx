@@ -7,13 +7,14 @@ import EditRecipeForm from "@/app/components/editRecipeForm";
 import type { Recipe } from "@/lib/data.types";
 
 interface EditRecipePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: EditRecipePageProps): Promise<Metadata> {
-  const recipe = await getRecipeById(params.id);
+  const { id } = await params;
+  const recipe = await getRecipeById(id);
   
   if (!recipe) {
     return {
@@ -28,7 +29,8 @@ export async function generateMetadata({ params }: EditRecipePageProps): Promise
 }
 
 export default async function EditRecipePage({ params }: EditRecipePageProps) {
-  const recipe: Recipe | null = await getRecipeById(params.id);
+  const { id } = await params;
+  const recipe: Recipe | null = await getRecipeById(id);
 
   if (!recipe) {
     return (
@@ -62,7 +64,7 @@ export default async function EditRecipePage({ params }: EditRecipePageProps) {
             {/* Back Button */}
             <div className="mb-4 sm:mb-6">
               <Link
-                href={`/recipes/${params.id}`}
+                href={`/recipes/${id}`}
                 className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
               >
                 ← Back to Recipe

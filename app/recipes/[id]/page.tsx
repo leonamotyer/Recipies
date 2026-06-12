@@ -8,13 +8,14 @@ import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe } from "@/lib/data.types";
 
 interface RecipePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: RecipePageProps): Promise<Metadata> {
-  const recipe = await getRecipeById(params.id);
+  const { id } = await params;
+  const recipe = await getRecipeById(id);
   
   if (!recipe) {
     return {
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: RecipePageProps): Promise<Met
 }
 
 export default async function RecipePage({ params }: RecipePageProps) {
-  const recipe: Recipe | null = await getRecipeById(params.id);
+  const { id } = await params;
+  const recipe: Recipe | null = await getRecipeById(id);
 
   if (!recipe) {
     return (
@@ -72,7 +74,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
             >
               ← Back to Recipes
             </Link>
-            <ProtectedEditButton recipeId={params.id} />
+            <ProtectedEditButton recipeId={id} />
           </div>
 
           {/* Recipe Header */}

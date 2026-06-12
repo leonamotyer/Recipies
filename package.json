@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test-graphql": "tsx scripts/testGraphQL.ts",
     "test-realtime": "tsx scripts/testRealtime.ts",
     "check-env": "tsx scripts/checkEnv.ts"
@@ -15,9 +15,14 @@
     "@apollo/client": "^4.0.9",
     "firebase": "^12.6.0",
     "graphql": "^16.12.0",
-    "next": "^14.2.5",
+    "next": "^16.2.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.10"
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
@@ -25,8 +30,8 @@
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.2.3",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.5",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.2.9",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "tsx": "^4.21.0",

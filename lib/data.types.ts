@@ -168,8 +168,8 @@ export interface RecipeCardProps {
  * Recipes Page Props - Props for the recipes page
  */
 export interface RecipesPageProps {
-  /** Search parameters from URL */
-  searchParams: {
+  /** Search parameters from URL (a Promise as of Next.js 15) */
+  searchParams: Promise<{
     /** Search query for title, description, ingredients */
     search?: string;
     
@@ -187,6 +187,6 @@ export interface RecipesPageProps {
     
     /** Filter by cheap flag */
     cheap?: string;
-  };
+  }>;
 }
 
