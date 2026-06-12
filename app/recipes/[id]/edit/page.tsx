@@ -34,18 +34,16 @@ export default async function EditRecipePage({ params }: EditRecipePageProps) {
 
   if (!recipe) {
     return (
-      <main className="min-h-screen bg-primary-dark">
+      <main className="min-h-screen">
         <Header />
-        <section className="py-12">
+        <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center py-12">
-              <h1 className="text-4xl font-bold text-text-color mb-4">Recipe Not Found</h1>
-              <p className="text-text-color text-lg mb-8">The recipe you&apos;re looking for doesn&apos;t exist.</p>
-              <Link
-                href="/recipes"
-                className="inline-block bg-primary-dark text-text-color hover:text-secondary-dark px-6 py-3 rounded-full font-semibold"
-              >
-                Back to Recipes
+            <div className="glass fade-up mx-auto max-w-md rounded-3xl p-12 text-center">
+              <p className="mb-4 text-5xl">🫥</p>
+              <h1 className="font-display text-3xl text-cocoa mb-2">Recipe not found</h1>
+              <p className="text-latte mb-8">The recipe you&apos;re looking for doesn&apos;t exist.</p>
+              <Link href="/recipes" className="btn-sweet px-6 py-3 text-sm">
+                Back to recipes
               </Link>
             </div>
           </div>
@@ -56,25 +54,25 @@ export default async function EditRecipePage({ params }: EditRecipePageProps) {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-primary-dark">
+      <main className="min-h-screen">
         <Header />
 
-        <section className="py-8 sm:py-10 md:py-12">
+        <section className="py-8 sm:py-12">
           <div className="container mx-auto px-4 max-w-4xl">
             {/* Back Button */}
-            <div className="mb-4 sm:mb-6">
+            <div className="fade-up mb-6">
               <Link
                 href={`/recipes/${id}`}
-                className="inline-flex items-center text-text-color hover:text-secondary-dark font-medium text-sm sm:text-base"
+                className="btn-soft px-4 py-2 text-xs sm:text-sm"
               >
-                ← Back to Recipe
+                ← Back to recipe
               </Link>
             </div>
 
             {/* Edit Form */}
-            <div className="bg-gray-300 rounded-2xl p-4 sm:p-6 md:p-8">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-color mb-6 sm:mb-8 text-center">
-                Edit Recipe
+            <div className="glass fade-up rounded-3xl p-5 sm:p-8 md:p-10" style={{ "--delay": "0.08s" } as React.CSSProperties}>
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-cocoa mb-8 text-center">
+                Edit <em className="gradient-text">{recipe.title}</em>
               </h1>
               <EditRecipeForm recipe={recipe} />
             </div>

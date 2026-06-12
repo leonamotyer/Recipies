@@ -12,6 +12,7 @@ export default function Filters() {
   const [fancy, setFancy] = useState(searchParams.get('fancy') === 'true');
   const [quick, setQuick] = useState(searchParams.get('quick') === 'true');
   const [cheap, setCheap] = useState(searchParams.get('cheap') === 'true');
+  const [crockpot, setCrockpot] = useState(searchParams.get('crockpot') === 'true');
 
   const categories = ['Dinner', 'Lunch', 'Breakfast', 'Main Course', 'Dessert', 'Appetizer', 'Side', 'Snack'];
   const timeRanges = [
@@ -30,10 +31,11 @@ export default function Filters() {
     if (fancy) params.set('fancy', 'true');
     if (quick) params.set('quick', 'true');
     if (cheap) params.set('cheap', 'true');
+    if (crockpot) params.set('crockpot', 'true');
 
     const queryString = params.toString();
     router.push(`/recipes${queryString ? `?${queryString}` : ''}`);
-  }, [searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, router]);
+  }, [searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot, router]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -42,11 +44,12 @@ export default function Filters() {
     setFancy(false);
     setQuick(false);
     setCheap(false);
+    setCrockpot(false);
     router.push('/recipes');
   };
 
   // Track previous values to detect actual changes
-  const prevFiltersRef = useRef({ searchQuery, selectedCategory, selectedTime, fancy, quick, cheap });
+  const prevFiltersRef = useRef({ searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot });
 
   // Dynamic search with debounce
   useEffect(() => {
@@ -69,7 +72,8 @@ export default function Filters() {
       prevFiltersRef.current.selectedTime !== selectedTime ||
       prevFiltersRef.current.fancy !== fancy ||
       prevFiltersRef.current.quick !== quick ||
-      prevFiltersRef.current.cheap !== cheap;
+      prevFiltersRef.current.cheap !== cheap ||
+      prevFiltersRef.current.crockpot !== crockpot;
 
     if (!hasChanged) return;
 
@@ -80,11 +84,12 @@ export default function Filters() {
       selectedTime, 
       fancy, 
       quick, 
-      cheap 
+      cheap, 
+      crockpot 
     };
     
     updateFilters(true);
-  }, [selectedCategory, selectedTime, fancy, quick, cheap, searchQuery, updateFilters]);
+  }, [selectedCategory, selectedTime, fancy, quick, cheap, crockpot, searchQuery, updateFilters]);
 
   useEffect(() => {
     // Update filters when search params change (e.g., from browser back button)
@@ -94,20 +99,24 @@ export default function Filters() {
     setFancy(searchParams.get('fancy') === 'true');
     setQuick(searchParams.get('quick') === 'true');
     setCheap(searchParams.get('cheap') === 'true');
+    setCrockpot(searchParams.get('crockpot') === 'true');
   }, [searchParams]);
 
   return (
-    <div className="bg-primary-dark/80 backdrop-blur-sm z-40 shadow-sm">
-      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+    <div className="glass rounded-3xl">
+      <div className="px-4 sm:px-6 py-4 sm:py-5">
         {/* Search Bar */}
         <div className="mb-4">
           <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-cocoa/40" aria-hidden>
+              ⌕
+            </span>
             <input
               type="text"
-              placeholder="Search recipes..."
+              placeholder="Search recipes, ingredients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="filter-input w-full px-4 sm:px-6 py-2 sm:py-3 rounded-full text-text-color placeholder:text-text-color/50 font-medium bg-primary-dark text-sm sm:text-base"
+              className="filter-input w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-full font-medium text-sm sm:text-base"
             />
             {searchQuery && (
               <button
@@ -115,7 +124,7 @@ export default function Filters() {
                   setSearchQuery('');
                   updateFilters(false);
                 }}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-color/50 hover:text-text-color transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-cocoa/40 hover:text-berry transition-colors"
                 aria-label="Clear search"
               >
                 ✕
@@ -128,11 +137,11 @@ export default function Filters() {
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center">
           {/* Time Filter */}
           <div className="flex items-center gap-2 flex-1 sm:flex-initial">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Time:</label>
+            <label className="text-xs font-semibold uppercase tracking-widest text-latte whitespace-nowrap hidden sm:inline">Time</label>
             <select
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
-              className="filter-input px-3 sm:px-4 py-2 rounded-full text-text-color font-medium cursor-pointer w-full sm:min-w-[140px] bg-primary-dark text-sm sm:text-base"
+              className="filter-input px-3 sm:px-4 py-2 rounded-full font-medium cursor-pointer w-full sm:min-w-[140px] text-sm sm:text-base"
             >
               <option value="">Any Time</option>
               {timeRanges.map((range) => (
@@ -143,11 +152,11 @@ export default function Filters() {
 
           {/* Category Filter */}
           <div className="flex items-center gap-2 flex-1 sm:flex-initial">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Category:</label>
+            <label className="text-xs font-semibold uppercase tracking-widest text-latte whitespace-nowrap hidden sm:inline">Category</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="filter-input px-3 sm:px-4 py-2 rounded-full text-text-color font-medium cursor-pointer w-full sm:min-w-[140px] bg-primary-dark text-sm sm:text-base"
+              className="filter-input px-3 sm:px-4 py-2 rounded-full font-medium cursor-pointer w-full sm:min-w-[140px] text-sm sm:text-base"
             >
               <option value="">All Categories</option>
               {categories.map((cat) => (
@@ -158,7 +167,7 @@ export default function Filters() {
 
           {/* Tag Filters */}
           <div className="flex items-center gap-2 flex-wrap flex-1">
-            <label className="text-text-color font-medium whitespace-nowrap text-sm hidden sm:inline">Tags:</label>
+            <label className="text-xs font-semibold uppercase tracking-widest text-latte whitespace-nowrap hidden sm:inline">Tags</label>
             <button
               onClick={() => setFancy(!fancy)}
               className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
@@ -183,10 +192,18 @@ export default function Filters() {
             >
               Cheap
             </button>
+            <button
+              onClick={() => setCrockpot(!crockpot)}
+              className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
+                crockpot ? 'active' : ''
+              }`}
+            >
+              Crockpot
+            </button>
           </div>
 
           {/* Clear Button */}
-          {(searchQuery || selectedCategory || selectedTime || fancy || quick || cheap) && (
+          {(searchQuery || selectedCategory || selectedTime || fancy || quick || cheap || crockpot) && (
             <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
               <button
                 onClick={clearFilters}

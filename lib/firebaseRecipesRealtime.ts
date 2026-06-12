@@ -1,5 +1,5 @@
 import { db } from './firebaseRealtime';
-import { ref, get, update } from 'firebase/database';
+import { ref, get, update, set } from 'firebase/database';
 import type { Recipe, Ingredient, RecipeFilters } from './data.types';
 
 // Helper function to transform Realtime Database data to Recipe
@@ -61,6 +61,7 @@ function transformRecipe(data: any, id: string): Recipe {
     fancy: categoriesLower.includes('fancy'),
     quick: categoriesLower.includes('quick'),
     cheap: categoriesLower.includes('cheap'),
+    crockpot: categoriesLower.includes('crockpot'),
   };
 }
 
@@ -186,6 +187,9 @@ export async function getRecipesByFilters(filters: RecipeFilters): Promise<Recip
       if (filters.cheap !== undefined) {
         matches = matches && (filters.cheap === categoriesLower.includes('cheap'));
       }
+      if (filters.crockpot !== undefined) {
+        matches = matches && (filters.crockpot === categoriesLower.includes('crockpot'));
+      }
       
       return matches;
     });
@@ -229,6 +233,109 @@ async function findRecipeKey(id: string): Promise<string | null> {
   }
 }
 
+function recipeDataToFirebase(recipeData: Partial<Recipe>): Record<string, unknown> {
+  const firebaseData: Record<string, unknown> = {};
+
+  if (recipeData.title !== undefined) {
+    firebaseData.title = recipeData.title;
+  }
+
+  if (recipeData.cookTime !== undefined) {
+    firebaseData.cook_time_minutes = recipeData.cookTime;
+  }
+
+  if (recipeData.cookingDescription !== undefined) {
+    firebaseData.instructions = recipeData.cookingDescription;
+  }
+
+  if (recipeData.dishCategories !== undefined) {
+    firebaseData.dish_category = recipeData.dishCategories;
+  }
+
+  if (recipeData.ingredients !== undefined) {
+    const ingredientsObj: Record<string, string> = {};
+    recipeData.ingredients.forEach(ing => {
+      const key = ing.ingredientName.replace(/\s+/g, '_');
+      ingredientsObj[key] = ing.measurement;
+    });
+    firebaseData.ingredients = ingredientsObj;
+  }
+
+  if (recipeData.images !== undefined) {
+    const imageData = recipeData.images.map(img => {
+      const entry: { imageUrl: string; uploadedBy?: string } = {
+        imageUrl: img.imageUrl,
+      };
+      if (img.uploadedBy) {
+        entry.uploadedBy = img.uploadedBy;
+      }
+      return entry;
+    });
+    firebaseData.image_urls = imageData;
+  }
+
+  return firebaseData;
+}
+
+async function getNextRecipeSlot(): Promise<{ key: string; recipeId: number }> {
+  const rootRef = ref(db, '/');
+  const snapshot = await get(rootRef);
+
+  let maxKey = -1;
+  let maxRecipeId = 0;
+
+  if (snapshot.exists()) {
+    const rootData = snapshot.val();
+    for (const key of Object.keys(rootData)) {
+      const item = rootData[key];
+      if (item && typeof item === 'object' && (item.title || item.cook_time_minutes !== undefined)) {
+        const numKey = parseInt(key, 10);
+        if (!isNaN(numKey) && numKey > maxKey) {
+          maxKey = numKey;
+        }
+        const rid = item.recipe_id;
+        if (typeof rid === 'number' && rid > maxRecipeId) {
+          maxRecipeId = rid;
+        }
+      }
+    }
+  }
+
+  return {
+    key: String(maxKey + 1),
+    recipeId: maxRecipeId + 1,
+  };
+}
+
+/**
+ * Create a new recipe in the database
+ * @param recipeData - The recipe data to create
+ * @returns The created recipe
+ */
+export async function createRecipe(recipeData: Partial<Recipe>): Promise<Recipe> {
+  try {
+    const { key, recipeId } = await getNextRecipeSlot();
+    const id = String(recipeId);
+
+    const firebaseData = {
+      recipe_id: recipeId,
+      ...recipeDataToFirebase(recipeData),
+    };
+
+    const recipeRef = ref(db, `/${key}`);
+    await set(recipeRef, firebaseData);
+
+    const created = await getRecipeById(id);
+    if (!created) {
+      throw new Error('Failed to retrieve created recipe');
+    }
+    return created;
+  } catch (error) {
+    console.error('Error creating recipe:', error);
+    throw error;
+  }
+}
+
 /**
  * Update a recipe in the database
  * @param id - The recipe ID
@@ -245,45 +352,8 @@ export async function updateRecipe(id: string, recipeData: Partial<Recipe>): Pro
       return null;
     }
     
-    // Transform Recipe data back to Firebase format
-    const firebaseData: any = {};
-    
-    if (recipeData.title !== undefined) {
-      firebaseData.title = recipeData.title;
-    }
-    
-    if (recipeData.cookTime !== undefined) {
-      firebaseData.cook_time_minutes = recipeData.cookTime;
-    }
-    
-    if (recipeData.cookingDescription !== undefined) {
-      firebaseData.instructions = recipeData.cookingDescription;
-    }
-    
-    if (recipeData.dishCategories !== undefined) {
-      firebaseData.dish_category = recipeData.dishCategories;
-    }
-    
-    // Transform ingredients array back to object format
-    if (recipeData.ingredients !== undefined) {
-      const ingredientsObj: Record<string, string> = {};
-      recipeData.ingredients.forEach(ing => {
-        // Convert ingredient name back to key format (spaces to underscores)
-        const key = ing.ingredientName.replace(/\s+/g, '_');
-        ingredientsObj[key] = ing.measurement;
-      });
-      firebaseData.ingredients = ingredientsObj;
-    }
-    
-    // Handle images - store as array of image objects with metadata
-    if (recipeData.images !== undefined) {
-      const imageData = recipeData.images.map(img => ({
-        imageUrl: img.imageUrl,
-        uploadedBy: img.uploadedBy,
-      }));
-      firebaseData.image_urls = imageData;
-    }
-    
+    const firebaseData = recipeDataToFirebase(recipeData);
+
     // Update the recipe in the database
     const recipeRef = ref(db, `/${recipeKey}`);
     await update(recipeRef, firebaseData);

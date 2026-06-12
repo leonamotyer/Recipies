@@ -1,67 +1,56 @@
 import Link from "next/link";
 import Image from "next/image";
+import ProtectedAddButton from "@/app/components/ProtectedAddButton";
+
+const navLinks = [
+  { href: "/recipes", label: "All" },
+  { href: "/recipes?category=main course", label: "Mains" },
+  { href: "/recipes?category=desert", label: "Desserts" },
+];
 
 export default function Header() {
   return (
-    <>
-      {/* Navigation Bar */}
-      <nav className="bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3 md:py-4">
-          <div className="flex items-center justify-between gap-2">
-            <Link href="/" className="inline-block flex-shrink-0">
-              <Image 
-                src="/whisk-svgrepo-com.svg" 
-                alt="Leona's Recipies" 
-                width={60} 
-                height={60} 
-                className="h-8 sm:h-10 md:h-12 w-auto"
+    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+      <nav className="glass-strong mx-auto max-w-5xl rounded-full px-4 sm:px-6 py-2.5 sm:py-3">
+        <div className="flex items-center justify-between gap-2">
+          <Link href="/" className="group flex items-center gap-2.5 flex-shrink-0">
+            <span className="jelly grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-gradient-to-br from-blush via-[#f3a9bd] to-butter shadow-[0_4px_14px_-4px_rgba(226,109,143,0.6)] transition-transform duration-500 group-hover:rotate-[20deg]">
+              <Image
+                src="/whisk-svgrepo-com.svg"
+                alt=""
+                width={22}
+                height={22}
+                className="h-5 w-5 sm:h-6 sm:w-6"
                 priority
               />
-            </Link>
-            <div className="flex gap-1 sm:gap-2 md:gap-4 flex-wrap text-xs sm:text-sm md:text-base justify-end">
-              <Link 
-                href="/recipes" 
-                className="text-text-color hover:text-secondary-dark font-medium px-2 sm:px-3 py-1 rounded-full hover:bg-primary-dark/10"
+            </span>
+            <span className="font-display italic text-base sm:text-lg text-cocoa tracking-wide hidden xs:inline sm:inline">
+              Leona&apos;s Kitchen
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="rounded-full px-2.5 sm:px-4 py-1.5 font-semibold text-cocoa/75 transition-all hover:text-berry hover:bg-blush/25"
               >
-                All
+                {link.label}
               </Link>
-              <Link 
-                href="/recipes?category=main course" 
-                className="text-text-color hover:text-secondary-dark font-medium px-2 sm:px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                Mains
-              </Link>
-              <Link 
-                href="/recipes?category=desert" 
-                className="text-text-color hover:text-secondary-dark font-medium px-2 sm:px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                Desserts
-              </Link>
-              <a 
-                href="https://motyer.ca" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-text-color hover:text-secondary-dark font-medium px-2 sm:px-3 py-1 rounded-full hover:bg-primary-dark/10"
-              >
-                About
-              </a>
-            </div>
+            ))}
+            <ProtectedAddButton />
+            <a
+              href="https://motyer.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full px-2.5 sm:px-4 py-1.5 font-semibold text-cocoa/75 transition-all hover:text-berry hover:bg-blush/25"
+            >
+              About
+            </a>
           </div>
         </div>
       </nav>
-
-      {/* Elegant Flourish Divider under Header */}
-      <div className="relative py-2 sm:py-3 md:py-4 overflow-hidden">
-        <div className="container mx-auto px-4 flex items-center justify-center">
-          <Image 
-            src="/Elegant-Flourish-Frame-Extrapolated-19.svg" 
-            alt="Elegant Flourish Divider" 
-            width={1200} 
-            height={200} 
-            className="w-full max-w-5xl h-auto"
-          />
-        </div>
-      </div>
-    </>
+    </header>
   );
 }

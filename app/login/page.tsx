@@ -1,6 +1,5 @@
 import Header from '@/app/components/header';
 import LoginButton from '@/app/components/LoginButton';
-import { AuthProvider } from '@/app/contexts/AuthContext';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -10,26 +9,26 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <AuthProvider>
-      <main className="min-h-screen bg-primary-dark">
-        <Header />
-        <section className="py-12 sm:py-16 md:py-20">
-          <div className="container mx-auto px-4 max-w-md">
-            <div className="bg-gray-300 rounded-2xl p-6 sm:p-8 md:p-10">
-              <h1 className="text-3xl sm:text-4xl font-bold text-text-color mb-6 text-center">
-                Sign In
-              </h1>
-              <p className="text-text-color mb-8 text-center">
-                Sign in with Google to edit recipes
-              </p>
-              <div className="flex justify-center">
-                <LoginButton />
-              </div>
+    <main className="min-h-screen">
+      <Header />
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 max-w-md">
+          <div className="glass fade-up rounded-3xl p-8 sm:p-10 text-center">
+            <span className="jelly mx-auto mb-6 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-blush via-[#f3a9bd] to-butter text-3xl shadow-[0_8px_24px_-8px_rgba(226,109,143,0.6)]">
+              🔑
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl text-cocoa mb-3">
+              Welcome <em className="gradient-text">back</em>
+            </h1>
+            <p className="text-latte mb-8">
+              Sign in with Google to edit recipes and add photos.
+            </p>
+            <div className="flex justify-center">
+              <LoginButton />
             </div>
           </div>
-        </section>
-      </main>
-    </AuthProvider>
+        </div>
+      </section>
+    </main>
   );
 }
-

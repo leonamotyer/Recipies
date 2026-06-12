@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
+import Reveal from "@/app/components/reveal";
 import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
 import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
@@ -69,12 +70,13 @@ export default async function RecipesPage(props: RecipesPageProps) {
       pageTitle = `${displayCategory} Recipes`;
     }
 
-    // Apply tag filters (fancy, quick, cheap)
-    if (searchParams.fancy || searchParams.quick || searchParams.cheap) {
-      const filters: { fancy?: boolean; quick?: boolean; cheap?: boolean } = {};
+    // Apply tag filters (fancy, quick, cheap, crockpot)
+    if (searchParams.fancy || searchParams.quick || searchParams.cheap || searchParams.crockpot) {
+      const filters: { fancy?: boolean; quick?: boolean; cheap?: boolean; crockpot?: boolean } = {};
       if (searchParams.fancy === 'true') filters.fancy = true;
       if (searchParams.quick === 'true') filters.quick = true;
       if (searchParams.cheap === 'true') filters.cheap = true;
+      if (searchParams.crockpot === 'true') filters.crockpot = true;
       
       const filteredByTags = await getRecipesByFilters(filters);
       // Combine with already filtered recipes
@@ -94,25 +96,50 @@ export default async function RecipesPage(props: RecipesPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-primary-dark">
+    <main className="min-h-screen">
       <Header />
-      <Suspense fallback={<div className="bg-primary-dark/80 backdrop-blur-sm z-40 shadow-sm"><div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4"><div className="h-16 sm:h-20"></div></div></div>}>
-        <Filters />
-      </Suspense>
 
-      <section className="py-8 sm:py-10 md:py-12">
+      <section className="py-10 sm:py-14">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-color mb-6 sm:mb-8 md:mb-12 text-center px-4">{pageTitle}</h1>
-          
+          <div className="fade-up mb-8 text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.35em] text-caramel">
+              The display case
+            </span>
+            <h1 className="font-display mt-2 text-4xl sm:text-5xl md:text-6xl text-cocoa">
+              <em className="gradient-text">{pageTitle}</em>
+            </h1>
+            <p className="mt-3 text-sm text-latte">
+              {recipes.length} {recipes.length === 1 ? "recipe" : "recipes"} on the shelf
+            </p>
+          </div>
+
+          <div className="fade-up mb-10" style={{ "--delay": "0.1s" } as React.CSSProperties}>
+            <Suspense
+              fallback={
+                <div className="glass rounded-3xl p-6">
+                  <div className="h-20 animate-pulse rounded-2xl bg-paper-deep" />
+                </div>
+              }
+            >
+              <Filters />
+            </Suspense>
+          </div>
+
           {recipes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 md:gap-8">
               {recipes.map((recipe, index) => (
-                <RecipeCard key={recipe.id} recipe={recipe} index={index} />
+                <Reveal key={recipe.id} delay={(index % 3) * 0.1}>
+                  <RecipeCard recipe={recipe} index={index} />
+                </Reveal>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-text-color text-lg">No recipes found.</p>
+            <div className="glass fade-up mx-auto max-w-md rounded-3xl p-12 text-center">
+              <p className="mb-4 text-5xl">🧺</p>
+              <p className="font-display text-2xl text-cocoa">The basket is empty</p>
+              <p className="mt-2 text-sm text-latte">
+                Try clearing a filter or searching for something else.
+              </p>
             </div>
           )}
         </div>
@@ -120,4 +147,3 @@ export default async function RecipesPage(props: RecipesPageProps) {
     </main>
   );
 }
-

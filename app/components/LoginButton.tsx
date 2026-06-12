@@ -45,16 +45,16 @@ export default function LoginButton() {
               className="w-8 h-8 rounded-full"
             />
           )}
-          <span className="text-text-color text-sm font-medium">
+          <span className="text-cocoa text-sm font-medium">
             {user.displayName || user.email}
           </span>
         </div>
         <button
           onClick={handleSignOut}
           disabled={isLoading}
-          className="filter-button px-4 py-2 rounded-full font-medium text-sm disabled:opacity-50"
+          className="btn-soft px-4 py-2 text-sm disabled:opacity-50"
         >
-          {isLoading ? 'Signing out...' : 'Sign Out'}
+          {isLoading ? 'Signing out...' : 'Sign out'}
         </button>
       </div>
     );
@@ -64,7 +64,7 @@ export default function LoginButton() {
     <button
       onClick={handleSignIn}
       disabled={isLoading}
-      className="filter-button px-4 py-2 rounded-full font-medium text-sm disabled:opacity-50"
+      className="btn-sweet px-6 py-3 text-sm disabled:opacity-50"
     >
       {isLoading ? 'Signing in...' : 'Sign in with Google'}
     </button>

@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,25 +21,38 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-primary-dark flex items-center justify-center">
-        <div className="text-text-color text-lg">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-latte text-lg animate-pulse">Loading...</div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-primary-dark flex items-center justify-center">
-        <div className="bg-gray-300 rounded-2xl p-8 max-w-md mx-4 text-center">
-          <h1 className="text-2xl font-bold text-text-color mb-4">Sign In Required</h1>
-          <p className="text-text-color mb-6">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass rounded-3xl p-10 max-w-md mx-4 text-center fade-up">
+          <h1 className="font-display text-3xl text-cocoa mb-3">Sign in required</h1>
+          <p className="text-latte mb-8">
             You need to sign in with Google to access this page.
           </p>
-          <Link
-            href="/login"
-            className="bg-secondary-dark text-white px-6 py-3 rounded-full font-semibold hover:bg-secondary-dark/90 inline-block"
-          >
-            Go to Login
+          <Link href="/login" className="btn-sweet px-6 py-3 text-sm inline-flex">
+            Go to login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass rounded-3xl p-10 max-w-md mx-4 text-center fade-up">
+          <h1 className="font-display text-3xl text-cocoa mb-3">Admin access only</h1>
+          <p className="text-latte mb-8">
+            Only the site admin can edit recipes. You are signed in as {user.email}.
+          </p>
+          <Link href="/recipes" className="btn-sweet px-6 py-3 text-sm inline-flex">
+            Back to recipes
           </Link>
         </div>
       </div>

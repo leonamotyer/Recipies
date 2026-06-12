@@ -49,6 +49,9 @@ export interface Recipe {
   
   /** Derived flag: true if dishCategories includes "cheap" */
   cheap?: boolean;
+  
+  /** Derived flag: true if dishCategories includes "crockpot" */
+  crockpot?: boolean;
 }
 
 /**
@@ -120,6 +123,9 @@ export interface RecipeFilters {
   
   /** Filter by cheap recipes */
   cheap?: boolean;
+  
+  /** Filter by crockpot recipes */
+  crockpot?: boolean;
 }
 
 /**
@@ -151,7 +157,8 @@ export type DishCategory =
   | 'snack'
   | 'fancy'
   | 'quick'
-  | 'cheap';
+  | 'cheap'
+  | 'crockpot';
 
 /**
  * Recipe Card Props - Props for the RecipeCard component
@@ -187,6 +194,9 @@ export interface RecipesPageProps {
     
     /** Filter by cheap flag */
     cheap?: string;
+    
+    /** Filter by crockpot flag */
+    crockpot?: string;
   }>;
 }
 

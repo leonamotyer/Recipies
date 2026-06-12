@@ -5,34 +5,39 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { updateRecipeAction } from '@/app/actions';
+import { revalidateRecipePaths } from '@/app/actions';
+import { updateRecipe, createRecipe } from '@/lib/firebaseRecipesRealtime';
 import { uploadRecipeImage } from '@/lib/firebaseStorage';
 import type { Recipe, Ingredient, Image as RecipeImage } from '@/lib/data.types';
 
 interface EditRecipeFormProps {
-  recipe: Recipe;
+  recipe?: Recipe;
 }
 
 export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
+  const isCreateMode = !recipe;
+  const draftId = useRef(`draft-${Date.now()}`);
+  const recipeId = recipe?.id ?? draftId.current;
+
   const router = useRouter();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Form state
-  const [title, setTitle] = useState(recipe.title);
-  const [cookTime, setCookTime] = useState(recipe.cookTime || 0);
-  const [cookingDescription, setCookingDescription] = useState(recipe.cookingDescription || '');
-  const [dishCategories, setDishCategories] = useState<string[]>(recipe.dishCategories || []);
-  const [ingredients, setIngredients] = useState<Ingredient[]>(recipe.ingredients || []);
-  const [images, setImages] = useState<RecipeImage[]>(recipe.images || []);
+  const [title, setTitle] = useState(recipe?.title ?? '');
+  const [cookTime, setCookTime] = useState(recipe?.cookTime || 0);
+  const [cookingDescription, setCookingDescription] = useState(recipe?.cookingDescription || '');
+  const [dishCategories, setDishCategories] = useState<string[]>(recipe?.dishCategories || []);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(recipe?.ingredients || []);
+  const [images, setImages] = useState<RecipeImage[]>(recipe?.images || []);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Available categories
   const availableCategories = [
     'dinner', 'lunch', 'breakfast', 'main course', 'dessert', 'desert',
-    'appetizer', 'side', 'snack', 'fancy', 'quick', 'cheap', 'one pan'
+    'appetizer', 'side', 'snack', 'fancy', 'quick', 'cheap', 'crockpot', 'one pan'
   ];
 
   const handleCategoryToggle = (category: string) => {
@@ -50,7 +55,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
       ...prev,
       {
         id: `temp-${Date.now()}`,
-        recipeId: recipe.id,
+        recipeId: recipeId,
         ingredientName: '',
         measurement: '',
       }
@@ -87,7 +92,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
     setError(null);
 
     try {
-      const imageUrl = await uploadRecipeImage(file, recipe.id);
+      const imageUrl = await uploadRecipeImage(file, recipeId);
       
       // Create new image object with uploader email
       const newImage: RecipeImage = {
@@ -117,32 +122,50 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
     setIsSubmitting(true);
     setError(null);
 
+    if (!user) {
+      setError(`You must be signed in to ${isCreateMode ? 'add' : 'edit'} recipes`);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Filter out empty ingredients
       const validIngredients = ingredients.filter(
         ing => ing.ingredientName.trim() && ing.measurement.trim()
       );
 
-      // Images are already Image objects with metadata
-      const imageObjects: RecipeImage[] = images;
-
-      const result = await updateRecipeAction(recipe.id, {
+      const payload = {
         title,
         cookTime: cookTime || 0,
         cookingDescription,
         dishCategories,
         ingredients: validIngredients,
-        images: imageObjects,
-      });
+        images,
+      };
 
-      if (result.success) {
-        router.push(`/recipes/${recipe.id}`);
+      if (isCreateMode) {
+        const created = await createRecipe(payload);
+        await revalidateRecipePaths(created.id);
+        router.push(`/recipes/${created.id}`);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to update recipe');
+        const updated = await updateRecipe(recipe.id, payload);
+
+        if (updated) {
+          await revalidateRecipePaths(recipe.id);
+          router.push(`/recipes/${recipe.id}`);
+          router.refresh();
+        } else {
+          setError('Recipe not found');
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(
+        message.toLowerCase().includes('permission')
+          ? 'Permission denied. Please make sure you are signed in with Google.'
+          : message
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -152,7 +175,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Error Message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="rounded-2xl border border-rose/40 bg-rose/10 text-rose px-4 py-3">
           {error}
         </div>
       )}
@@ -339,7 +362,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
       {/* Submit Buttons */}
       <div className="flex gap-4 justify-end pt-4">
         <Link
-          href={`/recipes/${recipe.id}`}
+          href={isCreateMode ? '/recipes' : `/recipes/${recipe!.id}`}
           className="filter-button px-6 py-3 rounded-full font-semibold"
         >
           Cancel
@@ -347,9 +370,11 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-secondary-dark text-white px-6 py-3 rounded-full font-semibold hover:bg-secondary-dark/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-sweet px-7 py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
+          {isSubmitting
+            ? isCreateMode ? 'Adding...' : 'Saving...'
+            : isCreateMode ? 'Add Recipe' : 'Save Changes'}
         </button>
       </div>
     </form>

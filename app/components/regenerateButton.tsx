@@ -21,13 +21,14 @@ export default function RegenerateButton() {
   };
 
   return (
-    <div className="flex justify-center mt-6 sm:mt-8">
+    <div className="flex justify-center mt-10">
       <button
         onClick={handleRegenerate}
         disabled={isLoading}
-        className="link-style-button font-semibold text-sm sm:text-base px-6 sm:px-8 py-2 sm:py-3"
+        className="btn-soft px-7 py-3 text-sm sm:text-base disabled:opacity-50"
       >
-        {isLoading ? 'Regenerating...' : 'Get New Recipes'}
+        <span className={isLoading ? 'inline-block animate-spin' : 'inline-block'} aria-hidden>🎲</span>
+        {isLoading ? 'Shuffling the deck...' : 'Deal me new recipes'}
       </button>
     </div>
   );

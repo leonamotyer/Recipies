@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { uploadRecipeImage } from '@/lib/firebaseStorage';
-import { updateRecipeAction } from '@/app/actions';
+import { updateRecipe } from '@/lib/firebaseRecipesRealtime';
+import { revalidateRecipePaths } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { Recipe, Image as RecipeImage } from '@/lib/data.types';
@@ -13,14 +14,14 @@ interface AddPhotoButtonProps {
 }
 
 export default function AddPhotoButton({ recipe }: AddPhotoButtonProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Don't show button if user is not authenticated
-  if (!user) {
+  // Only the admin can upload photos (enforced by Firebase rules too)
+  if (!user || !isAdmin) {
     return null;
   }
 
@@ -59,23 +60,30 @@ export default function AddPhotoButton({ recipe }: AddPhotoButtonProps) {
       // Combine existing images with new one
       const updatedImages = [...existingImages, newImage];
 
-      // Update recipe with new image
-      const result = await updateRecipeAction(recipe.id, {
+      // Write directly from the browser so the request carries the
+      // signed-in user's credentials (database rules require auth to write)
+      const updated = await updateRecipe(recipe.id, {
         images: updatedImages,
       });
 
-      if (result.success) {
+      if (updated) {
         // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-        // Refresh the page to show new image
+        // Refresh the server-rendered page to show the new image
+        await revalidateRecipePaths(recipe.id);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to update recipe');
+        setError('Recipe not found');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload image');
+      const message = err instanceof Error ? err.message : 'Failed to upload image';
+      setError(
+        message.toLowerCase().includes('permission')
+          ? 'Permission denied. Please make sure you are signed in with Google.'
+          : message
+      );
     } finally {
       setIsUploading(false);
     }

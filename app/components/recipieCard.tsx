@@ -1,70 +1,99 @@
+'use client';
+
 import Link from "next/link";
-import type { Recipe, RecipeCardProps } from "@/lib/data.types";
+import Image from "next/image";
+import { useRef } from "react";
+import type { RecipeCardProps } from "@/lib/data.types";
 
-
-// Helper function to get background color based on index
-const getBackgroundColor = (index: number) => {
-  const colors = [
-    'bg-primary-light',
-    'bg-secondary-light',
-    'bg-third-light',
-    'bg-primary-dark/20',
-  ];
-  return colors[index % colors.length];
+const categoryEmoji = (categories: string[]): string => {
+  const joined = categories.join(" ").toLowerCase();
+  if (joined.includes("desert") || joined.includes("dessert")) return "🧁";
+  if (joined.includes("breakfast")) return "🥞";
+  if (joined.includes("lunch")) return "🥪";
+  if (joined.includes("appetizer")) return "🫒";
+  if (joined.includes("side")) return "🥗";
+  if (joined.includes("snack")) return "🍿";
+  if (joined.includes("soup")) return "🍜";
+  return "🥧";
 };
 
+const placeholderGradients = [
+  "from-[#fde7ee] via-[#fdf2e3] to-[#fffdf9]",
+  "from-[#fdf0dc] via-[#fdeae2] to-[#fffdf9]",
+  "from-[#e9f2e2] via-[#fdf4e3] to-[#fffdf9]",
+  "from-[#fdeee4] via-[#fde9f0] to-[#fffdf9]",
+];
+
 export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
-  // Get first category for display (or use "Recipe" as default)
-  // Support both dishCategories (from Data Connect) and categories (computed alias)
+  const cardRef = useRef<HTMLAnchorElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${((e.clientX - rect.left) / rect.width) * 100}%`);
+    el.style.setProperty("--my", `${((e.clientY - rect.top) / rect.height) * 100}%`);
+  };
+
   const categories = recipe.dishCategories || recipe.categories || [];
-  const displayCategory = categories.length > 0 
-    ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
-    : "Recipe";
-  
-  // Use computed time or format from cookTime, only if cookTime is valid (> 0)
+  const displayCategory =
+    categories.length > 0
+      ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
+      : null;
+
   const hasValidTime = recipe.cookTime && recipe.cookTime > 0;
-  const displayTime = hasValidTime ? (recipe.time || `${recipe.cookTime} min`) : null;
-  
-  // Use description or cookingDescription
+  const displayTime = hasValidTime ? recipe.time || `${recipe.cookTime} min` : null;
   const displayDescription = recipe.description || recipe.cookingDescription;
+  const coverImage = recipe.images?.[0]?.imageUrl;
 
   return (
     <Link
+      ref={cardRef}
       href={`/recipes/${recipe.id}`}
-      className="bg-third-light rounded-2xl overflow-hidden hover:scale-105 transition-all duration-300 block group"
+      onMouseMove={handleMouseMove}
+      className="spotlight-card group block rounded-[1.75rem]"
     >
-      {/* Image at the top */}
-      <div className={`h-48 ${getBackgroundColor(index)}`}></div>
-      
-      {/* Content section with third-light background */}
-      <div className="p-4 sm:p-5 md:p-6 bg-third-light">
-        {/* Title and cook time in right corner under the image */}
-        <div className="flex items-start justify-between mb-2 gap-2">
-          <h3 className="text-lg sm:text-xl font-semibold text-text-color group-hover:text-secondary-light flex-1 pr-2 break-words">
-            {recipe.title}
-          </h3>
-          {displayTime && (
-            <span className="text-xs sm:text-sm text-text-color font-medium whitespace-nowrap flex-shrink-0">
-              {displayTime}
-            </span>
-          )}
-        </div>
-        
-        {/* Category badge */}
-        {displayCategory && (
-          <div className="mb-2">
-            <span className="text-xs sm:text-sm text-primary-dark font-semibold bg-third-light px-2 sm:px-3 py-1 rounded-full">
-              {displayCategory}
+      {/* Cover */}
+      <div className="relative h-52 overflow-hidden">
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt={recipe.title}
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
+        ) : (
+          <div
+            className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${placeholderGradients[index % placeholderGradients.length]}`}
+          >
+            <span className="text-6xl drop-shadow-[0_8px_16px_rgba(201,138,75,0.25)] transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-6">
+              {categoryEmoji(categories)}
             </span>
           </div>
         )}
-        
-        {/* Description if available */}
+
+        {displayTime && (
+          <span className="chip chip--jam absolute right-3 top-3 z-10">
+            ⏱ {displayTime}
+          </span>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="relative z-10 p-5">
+        {displayCategory && <span className="chip mb-3">{displayCategory}</span>}
+        <h3 className="font-display text-xl sm:text-2xl text-cocoa leading-snug break-words transition-colors duration-300 group-hover:text-berry">
+          {recipe.title}
+        </h3>
         {displayDescription && (
-          <p className="text-text-color mb-4 text-xs sm:text-sm line-clamp-2">
+          <p className="mt-2 text-sm text-latte line-clamp-2 leading-relaxed">
             {displayDescription}
           </p>
         )}
+        <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-berry opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+          Bake it <span aria-hidden>→</span>
+        </span>
       </div>
     </Link>
   );

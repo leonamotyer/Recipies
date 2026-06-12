@@ -4,9 +4,14 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User } from 'firebase/auth';
 import { onAuthStateChange, signInWithGoogle, signOutUser } from '@/lib/firebaseAuth';
 
+/** Email address with admin (edit) access. Must match database.rules.json and storage.rules. */
+export const ADMIN_EMAIL = 'rlmotyer@gmail.com';
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  /** True when the signed-in user is the admin allowed to edit recipes */
+  isAdmin: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -40,8 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

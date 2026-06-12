@@ -2,174 +2,615 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   THE SOFT BAKERY — design tokens
+   ============================================ */
 :root {
-  --primary-light: #c4cad0;
-  --secondary-light: #c6afb1;
-  --primary-dark: #655560;
-  --secondary-dark: #80A1C1;
-  --third-light: #ffd4d4;
+  /* Bakery palette */
+  --paper: #fdf6ec;        /* warm linen page background */
+  --paper-deep: #f9ecdd;   /* slightly toastier section background */
+  --card: #fffdf9;         /* card surface */
+  --crust: #f0ddc6;        /* soft borders */
+  --cocoa: #4b3429;        /* main text */
+  --latte: #a08672;        /* muted text */
+  --berry: #e26d8f;        /* primary accent — jam pink */
+  --blush: #f7c5d3;        /* soft pink */
+  --butter: #f6c46a;       /* butter yellow */
+  --caramel: #c98a4b;      /* warm caramel */
+  --pistachio: #a3c293;    /* soft green */
+  --rose: #dd6b6b;         /* errors */
+
+  /* Legacy variable names remapped so old classes stay coherent */
+  --primary-light: #fdf6ec;
+  --secondary-light: #f9ecdd;
+  --primary-dark: var(--paper);
+  --secondary-dark: var(--berry);
+  --third-light: var(--card);
   --black: #000000;
-  --white: #FFFFFF;
-  --text-color: #000000;
-  --link-color: #878c8f;
-  --background: var(--white);
-  --foreground: var(--text-color);
+  --white: #ffffff;
+  --text-color: var(--cocoa);
+  --link-color: var(--latte);
+  --background: var(--paper);
+  --foreground: var(--cocoa);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--primary-dark);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--cocoa);
+  background: var(--paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .calligraphy {
-    font-family: 'Brush Script MT', 'Lucida Handwriting', 'Apple Chancery', cursive;
-    font-style: italic;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: 0.1em;
+::selection {
+  background: var(--blush);
+  color: var(--cocoa);
+}
+
+/* Slim themed scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--blush), var(--butter));
+  border-radius: 99px;
+  border: 2px solid var(--paper);
+}
+
+/* ============================================
+   Ambient backdrop — dough blobs + sprinkles
+   ============================================ */
+.bakery-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.dough-blob {
+  position: absolute;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: blob-morph 18s ease-in-out infinite alternate, drift 30s ease-in-out infinite alternate;
+  will-change: transform, border-radius;
+}
+
+.dough-blob--blush {
+  width: 42vw;
+  height: 42vw;
+  top: -14%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(247, 197, 211, 0.7), transparent 70%);
+}
+
+.dough-blob--butter {
+  width: 36vw;
+  height: 36vw;
+  top: 24%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(246, 196, 106, 0.45), transparent 70%);
+  animation-delay: -6s;
+}
+
+.dough-blob--pistachio {
+  width: 38vw;
+  height: 38vw;
+  bottom: -16%;
+  left: 24%;
+  background: radial-gradient(circle, rgba(163, 194, 147, 0.4), transparent 70%);
+  animation-delay: -12s;
+}
+
+@keyframes blob-morph {
+  0%   { border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; }
+  50%  { border-radius: 45% 55% 40% 60% / 60% 45% 55% 40%; }
+  100% { border-radius: 55% 45% 60% 40% / 45% 55% 45% 60%; }
+}
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(6vw, 8vh) scale(1.12); }
+}
+
+/* Faint pastel sprinkles scattered over the page */
+.sprinkles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(3px 8px at 12% 20%, var(--blush) 45%, transparent 50%),
+    radial-gradient(3px 8px at 78% 12%, var(--butter) 45%, transparent 50%),
+    radial-gradient(8px 3px at 30% 68%, var(--pistachio) 45%, transparent 50%),
+    radial-gradient(3px 8px at 64% 80%, var(--blush) 45%, transparent 50%),
+    radial-gradient(8px 3px at 90% 50%, var(--butter) 45%, transparent 50%),
+    radial-gradient(3px 8px at 44% 38%, var(--pistachio) 45%, transparent 50%),
+    radial-gradient(8px 3px at 8% 88%, var(--butter) 45%, transparent 50%);
+  background-size: 520px 520px;
+  background-repeat: repeat;
+}
+
+/* ============================================
+   Typography helpers
+   ============================================ */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.gradient-text {
+  background: linear-gradient(100deg, var(--berry) 10%, var(--caramel) 60%, var(--butter) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-pan 6s ease-in-out infinite alternate;
+}
+
+@keyframes gradient-pan {
+  from { background-position: 0% center; }
+  to   { background-position: 100% center; }
+}
+
+/* ============================================
+   Soft surfaces (kept class names from before)
+   ============================================ */
+.glass {
+  background: rgba(255, 253, 249, 0.82);
+  border: 1px solid var(--crust);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 32px -16px rgba(112, 72, 40, 0.18);
+}
+
+.glass-strong {
+  background: rgba(255, 253, 249, 0.92);
+  border: 1px solid var(--crust);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 12px 36px -16px rgba(112, 72, 40, 0.22);
+}
+
+/* Piping — dashed icing border */
+.piping {
+  border: 2px dashed var(--blush);
+}
+
+.piping-divider {
+  border-top: 3px dashed var(--blush);
+  opacity: 0.8;
+}
+
+/* ============================================
+   Spotlight cards — warm sugar glow follows cursor
+   (JS sets --mx / --my as percentages)
+   ============================================ */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--crust);
+  box-shadow: 0 8px 28px -14px rgba(112, 72, 40, 0.2);
+  transition: transform 0.45s cubic-bezier(0.21, 1, 0.32, 1), border-color 0.3s ease, box-shadow 0.45s ease;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(226, 109, 143, 0.1),
+    transparent 60%
+  );
+}
+
+.spotlight-card:hover {
+  transform: translateY(-6px) rotate(-0.6deg);
+  border-color: var(--blush);
+  box-shadow:
+    0 24px 44px -18px rgba(112, 72, 40, 0.3),
+    0 0 0 4px rgba(247, 197, 211, 0.35);
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   Entrance + scroll-journey animations
+   ============================================ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
   }
-  
-  .flourish {
-    display: inline-block;
-    transform: rotate(-15deg);
-    font-size: 2rem;
-    opacity: 0.7;
-    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
-  }
-  
-  .scroll-border {
-    font-family: monospace;
-    letter-spacing: 0.2em;
-  }
-  
-  .ornamental-divider {
-    font-family: 'Times New Roman', serif;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
+.fade-up {
+  opacity: 0;
+  animation: fade-up 0.8s cubic-bezier(0.21, 1, 0.32, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Scroll reveal — JS adds .revealed when the element enters the viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.21, 1, 0.32, 1),
+    transform 0.9s cubic-bezier(0.21, 1, 0.32, 1);
+  transition-delay: var(--delay, 0s);
+}
+
+.reveal--left  { transform: translateX(-56px); }
+.reveal--right { transform: translateX(56px); }
+.reveal--pop   { transform: scale(0.85); }
+
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(4deg); }
+}
+
+.float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Jelly wobble on hover */
+@keyframes jelly {
+  0%   { transform: scale(1, 1); }
+  30%  { transform: scale(1.08, 0.92); }
+  50%  { transform: scale(0.95, 1.05); }
+  70%  { transform: scale(1.03, 0.97); }
+  100% { transform: scale(1, 1); }
+}
+
+.jelly:hover {
+  animation: jelly 0.7s ease;
+}
+
+/* Gentle wiggle for emoji and badges */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-8deg); }
+  75%      { transform: rotate(8deg); }
+}
+
+.wiggle:hover {
+  animation: wiggle 0.5s ease-in-out 2;
+}
+
+/* Rising steam wisps — place inside a relative parent */
+.steam {
+  position: absolute;
+  bottom: 88%;
+  left: 50%;
+  width: 60px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.steam span {
+  position: absolute;
+  bottom: 0;
+  width: 7px;
+  height: 30px;
+  border-radius: 99px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+  filter: blur(3px);
+  opacity: 0;
+  animation: steam-rise 3.2s ease-in-out infinite;
+}
+
+.steam span:nth-child(1) { left: 10%; animation-delay: 0s; }
+.steam span:nth-child(2) { left: 45%; animation-delay: 1.1s; height: 38px; }
+.steam span:nth-child(3) { left: 78%; animation-delay: 2.2s; }
+
+@keyframes steam-rise {
+  0%   { transform: translateY(10px) scaleY(0.5); opacity: 0; }
+  25%  { opacity: 0.9; }
+  100% { transform: translateY(-34px) scaleY(1.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up { animation: none; opacity: 1; }
+  .reveal { transition: none; opacity: 1; transform: none; }
+  .float-slow, .dough-blob, .gradient-text, .marquee-track, .steam span, .jelly:hover, .wiggle:hover {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Marquee ticker
+   ============================================ */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+}
+
+.marquee-track {
+  display: inline-flex;
+  animation: marquee 45s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ============================================
+   Buttons & chips
+   ============================================ */
+.btn-sweet {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(100deg, var(--berry), #ef94a8 55%, var(--butter));
+  background-size: 180% auto;
+  color: #fffdf9;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: background-position 0.5s ease, transform 0.25s ease, box-shadow 0.35s ease;
+  box-shadow: 0 8px 24px -8px rgba(226, 109, 143, 0.55);
+}
+
+.btn-sweet:hover {
+  background-position: 100% center;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -8px rgba(226, 109, 143, 0.6);
+}
+
+.btn-sweet:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid var(--crust);
+  background: var(--card);
+  color: var(--cocoa);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-soft:hover {
+  border-color: var(--blush);
+  color: var(--berry);
+  background: #fff5f8;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px rgba(226, 109, 143, 0.4);
+}
+
+.btn-soft:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--crust);
+  background: var(--card);
+  color: var(--caramel);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  box-shadow: 0 2px 8px -4px rgba(112, 72, 40, 0.25);
+}
+
+.chip--jam {
+  border-color: var(--blush);
+  background: #fdeef3;
+  color: var(--berry);
+}
+
+/* ============================================
+   Links — calm by default
+   ============================================ */
+a {
+  color: inherit;
+  transition: color 0.25s ease;
+}
+
+/* ============================================
+   Forms (filters + edit form)
+   ============================================ */
+.filter-input {
+  background: var(--card);
+  border: 2px solid var(--crust);
+  color: var(--cocoa);
+  transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--berry);
+  box-shadow: 0 0 0 4px rgba(247, 197, 211, 0.45);
+}
+
+.filter-input::placeholder {
+  color: rgba(75, 52, 41, 0.4);
+}
+
+.filter-input option {
+  background: var(--card);
+  color: var(--cocoa);
+}
+
+.filter-button {
+  background: var(--card);
+  border: 2px solid var(--crust);
+  color: var(--cocoa);
+  transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+  border-color: var(--blush);
+  color: var(--berry);
+  background: #fff5f8;
+}
+
+.filter-button.active {
+  background: linear-gradient(100deg, var(--berry), #ef94a8);
+  color: #fffdf9;
+  border-color: transparent;
+  box-shadow: 0 4px 16px -4px rgba(226, 109, 143, 0.55);
+}
+
+.filter-button.active:hover {
+  opacity: 0.92;
+}
+
+/* Link-style button */
+.link-style-button {
+  color: var(--cocoa);
+  transition: color 0.25s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-style-button:hover:not(:disabled) {
+  color: var(--berry);
+}
+
+.link-style-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Ingredient checklist
+   ============================================ */
+.ingredient-row {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.ingredient-row.is-checked {
+  opacity: 0.45;
+}
+
+.ingredient-row.is-checked .ingredient-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--berry);
+  text-decoration-thickness: 2px;
+}
+
+.check-box {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+  border-radius: 99px;
+  border: 2px solid var(--crust);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  font-size: 0.8rem;
+  color: transparent;
+}
+
+.ingredient-row.is-checked .check-box {
+  background: linear-gradient(120deg, var(--berry), #ef94a8);
+  border-color: transparent;
+  color: #fffdf9;
+  box-shadow: 0 0 14px -2px rgba(226, 109, 143, 0.7);
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--paper-deep);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--blush), var(--berry), var(--butter));
+  transition: width 0.5s cubic-bezier(0.21, 1, 0.32, 1);
+  box-shadow: 0 0 12px rgba(226, 109, 143, 0.5);
+}
+
+/* ============================================
+   Misc utilities
+   ============================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
-@keyframes continuousZoom {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
+.step-number {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  background: linear-gradient(135deg, var(--berry), var(--caramel));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-a {
-    color: var(--text-color);
-    transition: color 0.3s ease;
-    position: relative;
+/* Dotted journey path (home page) */
+.journey-path {
+  position: relative;
 }
 
-a:hover {
-    color: var(--secondary-dark);
-    animation: continuousZoom 2s ease-in-out infinite;
+.journey-path::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 3px dashed var(--blush);
+  opacity: 0.9;
 }
 
-a:hover::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 4px;
-    background: #d3d3d3;
-    border-radius: 50%;
-    opacity: 0.6;
-}
-
-/* Filter Input Styles */
-.filter-input {
-    background: var(--primary-dark);
-    border: 2px solid var(--secondary-dark);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    box-shadow: 0 0 0 2px rgba(128, 161, 193, 0.2);
-}
-
-.filter-input:focus {
-    outline: none;
-    border-color: var(--secondary-dark);
-    box-shadow: 0 0 0 3px rgba(128, 161, 193, 0.3);
-}
-
-.filter-input::placeholder {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-/* Filter Button Styles */
-.filter-button {
-    background: var(--primary-dark);
-    border: 1px solid rgba(101, 85, 96, 0.3);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-}
-
-.filter-button:hover {
-    background: rgba(101, 85, 96, 0.1);
-    border-color: var(--secondary-dark);
-    color: var(--secondary-dark);
-}
-
-.filter-button.active {
-    background: var(--secondary-dark);
-    color: var(--white);
-    border-color: var(--secondary-dark);
-}
-
-.filter-button.active:hover {
-    background: var(--secondary-dark);
-    opacity: 0.9;
-}
-
-/* Link-style Button (for buttons that should look like links) */
-.link-style-button {
-    color: var(--text-color);
-    transition: color 0.3s ease;
-    position: relative;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.link-style-button:hover:not(:disabled) {
-    color: var(--secondary-dark);
-    animation: continuousZoom 2s ease-in-out infinite;
-}
-
-.link-style-button:hover:not(:disabled)::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 4px;
-    background: #d3d3d3;
-    border-radius: 50%;
-    opacity: 0.6;
-}
-
-.link-style-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.journey-stop-badge {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 99px;
+  background: var(--card);
+  border: 3px solid var(--blush);
+  font-size: 1.5rem;
+  box-shadow: 0 6px 18px -6px rgba(226, 109, 143, 0.45);
 }
