@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef } from "react";
 import type { RecipeCardProps } from "@/lib/data.types";
+import { GRANDMA_RIPLEY_TAG } from "@/lib/grandmaRipley";
 
 const categoryEmoji = (categories: string[]): string => {
   const joined = categories.join(" ").toLowerCase();
@@ -41,6 +42,7 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
       ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
       : null;
 
+  const displayTitle = recipe.displayTitle || recipe.title;
   const hasValidTime = recipe.cookTime && recipe.cookTime > 0;
   const displayTime = hasValidTime ? recipe.time || `${recipe.cookTime} min` : null;
   const displayDescription = recipe.description || recipe.cookingDescription;
@@ -58,7 +60,7 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
         {coverImage ? (
           <Image
             src={coverImage}
-            alt={recipe.title}
+            alt={displayTitle}
             fill
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -82,9 +84,12 @@ export default function RecipeCard({ recipe, index = 0 }: RecipeCardProps) {
 
       {/* Body */}
       <div className="relative z-10 p-5">
-        {displayCategory && <span className="chip mb-3">{displayCategory}</span>}
+        <div className="mb-3 flex flex-wrap gap-2">
+          {recipe.grandmaRipley && <span className="chip chip--jam">{GRANDMA_RIPLEY_TAG}</span>}
+          {displayCategory && <span className="chip">{displayCategory}</span>}
+        </div>
         <h3 className="font-display text-xl sm:text-2xl text-cocoa leading-snug break-words transition-colors duration-300 group-hover:text-berry">
-          {recipe.title}
+          {displayTitle}
         </h3>
         {displayDescription && (
           <p className="mt-2 text-sm text-latte line-clamp-2 leading-relaxed">

@@ -6,6 +6,7 @@ import ProtectedEditButton from "@/app/components/ProtectedEditButton";
 import AddPhotoButton from "@/app/components/AddPhotoButton";
 import IngredientChecklist from "@/app/components/ingredientChecklist";
 import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
+import { GRANDMA_RIPLEY_TAG } from "@/lib/grandmaRipley";
 import type { Recipe } from "@/lib/data.types";
 
 interface RecipePageProps {
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: RecipePageProps): Promise<Met
   }
   
   return {
-    title: `${recipe.title} | Leona's Recipes`,
-    description: recipe.description || recipe.cookingDescription || `View the recipe for ${recipe.title}`,
+    title: `${recipe.displayTitle || recipe.title} | Leona's Recipes`,
+    description: recipe.description || recipe.cookingDescription || `View the recipe for ${recipe.displayTitle || recipe.title}`,
   };
 }
 
@@ -62,6 +63,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
     );
   }
 
+  const displayTitle = recipe.displayTitle || recipe.title;
   const hasValidTime = recipe.cookTime && recipe.cookTime > 0;
   const displayTime = hasValidTime ? (recipe.time || `${recipe.cookTime} min`) : null;
   const categories = recipe.dishCategories || recipe.categories || [];
@@ -91,7 +93,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
               <>
                 <Image
                   src={heroImage}
-                  alt={recipe.title}
+                  alt={displayTitle}
                   fill
                   className="object-cover opacity-30"
                   sizes="(max-width: 1024px) 100vw, 1024px"
@@ -101,8 +103,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
               </>
             )}
             <div className="relative px-6 py-14 sm:px-12 sm:py-20 text-center">
-              {categories.length > 0 && (
+              {(recipe.grandmaRipley || categories.length > 0) && (
                 <div className="mb-5 flex flex-wrap justify-center gap-2">
+                  {recipe.grandmaRipley && (
+                    <span className="chip chip--jam">{GRANDMA_RIPLEY_TAG}</span>
+                  )}
                   {categories.map((cat, index) => (
                     <span key={index} className="chip">
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -111,7 +116,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
                 </div>
               )}
               <h1 className="font-display text-balance text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-cocoa break-words">
-                <em className="gradient-text">{recipe.title}</em>
+                <em className="gradient-text">{displayTitle}</em>
               </h1>
               {displayTime && (
                 <p className="mt-5 inline-flex items-center gap-2 text-sm sm:text-base font-semibold uppercase tracking-[0.25em] text-berry">
@@ -185,7 +190,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
                   >
                     <Image
                       src={image.imageUrl}
-                      alt={`${recipe.title} - Photo ${index + 1}`}
+                      alt={`${displayTitle} - Photo ${index + 1}`}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"

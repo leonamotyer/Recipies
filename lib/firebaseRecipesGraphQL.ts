@@ -6,6 +6,7 @@ import {
   GET_RECIPE_FULL 
 } from './graphql/queries';
 import type { Recipe, Ingredient, Image, RecipeFilters } from './data.types';
+import { getRecipeDisplayTitle, isGrandmaRipleyRecipe } from './grandmaRipley';
 
 // Re-export types for convenience
 export type { Recipe, Ingredient, Image, RecipeFilters } from './data.types';
@@ -14,10 +15,12 @@ export type { Recipe, Ingredient, Image, RecipeFilters } from './data.types';
 function transformRecipe(data: any): Recipe {
   const dishCategories = data.dishCategories || [];
   const categoriesLower = dishCategories.map((cat: string) => cat.toLowerCase());
-  
+  const title = data.title || '';
+  const grandmaRipley = isGrandmaRipleyRecipe(title);
+
   return {
     id: data.id,
-    title: data.title,
+    title,
     cookTime: data.cookTime,
     cookingDescription: data.cookingDescription,
     dishCategories: dishCategories,
@@ -30,6 +33,8 @@ function transformRecipe(data: any): Recipe {
     fancy: categoriesLower.includes('fancy'),
     quick: categoriesLower.includes('quick'),
     cheap: categoriesLower.includes('cheap'),
+    grandmaRipley,
+    displayTitle: grandmaRipley ? getRecipeDisplayTitle(title) : title,
   };
 }
 
@@ -163,6 +168,9 @@ export async function getRecipesByFilters(filters: RecipeFilters): Promise<Recip
       }
       if (filters.cheap !== undefined) {
         matches = matches && (filters.cheap === categoriesLower.includes('cheap'));
+      }
+      if (filters.grandmaRipley !== undefined) {
+        matches = matches && (filters.grandmaRipley === !!recipe.grandmaRipley);
       }
       
       return matches;

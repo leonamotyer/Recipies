@@ -52,6 +52,12 @@ export interface Recipe {
   
   /** Derived flag: true if dishCategories includes "crockpot" */
   crockpot?: boolean;
+
+  /** Derived flag: true if title is prefixed with "GR " (Grandma Ripley) */
+  grandmaRipley?: boolean;
+
+  /** Title with "GR " prefix removed for display */
+  displayTitle?: string;
 }
 
 /**
@@ -126,6 +132,9 @@ export interface RecipeFilters {
   
   /** Filter by crockpot recipes */
   crockpot?: boolean;
+
+  /** Filter by Grandma Ripley recipes (title prefixed with "GR ") */
+  grandmaRipley?: boolean;
 }
 
 /**
@@ -197,6 +206,9 @@ export interface RecipesPageProps {
     
     /** Filter by crockpot flag */
     crockpot?: string;
+
+    /** Filter by Grandma Ripley flag */
+    grandmaRipley?: string;
   }>;
 }
 

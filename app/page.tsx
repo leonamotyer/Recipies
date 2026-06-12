@@ -24,7 +24,7 @@ const getHomeData = unstable_cache(
       const allRecipes = await getAllRecipes();
       return {
         featured: getRandomRecipes(allRecipes, 4),
-        titles: allRecipes.map((r) => r.title),
+        titles: allRecipes.map((r) => r.displayTitle || r.title),
         total: allRecipes.length,
       };
     } catch (error) {

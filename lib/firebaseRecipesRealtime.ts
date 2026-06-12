@@ -1,6 +1,7 @@
 import { db } from './firebaseRealtime';
 import { ref, get, update, set } from 'firebase/database';
 import type { Recipe, Ingredient, RecipeFilters } from './data.types';
+import { getRecipeDisplayTitle, isGrandmaRipleyRecipe } from './grandmaRipley';
 
 // Helper function to transform Realtime Database data to Recipe
 function transformRecipe(data: any, id: string): Recipe {
@@ -46,9 +47,12 @@ function transformRecipe(data: any, id: string): Recipe {
     });
   }
   
+  const title = data.title || '';
+  const grandmaRipley = isGrandmaRipleyRecipe(title);
+
   return {
     id: id,
-    title: data.title || '',
+    title,
     cookTime: data.cook_time_minutes || 0,
     cookingDescription: data.instructions || '',
     dishCategories: dishCategories,
@@ -62,6 +66,8 @@ function transformRecipe(data: any, id: string): Recipe {
     quick: categoriesLower.includes('quick'),
     cheap: categoriesLower.includes('cheap'),
     crockpot: categoriesLower.includes('crockpot'),
+    grandmaRipley,
+    displayTitle: grandmaRipley ? getRecipeDisplayTitle(title) : title,
   };
 }
 
@@ -189,6 +195,9 @@ export async function getRecipesByFilters(filters: RecipeFilters): Promise<Recip
       }
       if (filters.crockpot !== undefined) {
         matches = matches && (filters.crockpot === categoriesLower.includes('crockpot'));
+      }
+      if (filters.grandmaRipley !== undefined) {
+        matches = matches && (filters.grandmaRipley === !!recipe.grandmaRipley);
       }
       
       return matches;

@@ -13,6 +13,7 @@ export default function Filters() {
   const [quick, setQuick] = useState(searchParams.get('quick') === 'true');
   const [cheap, setCheap] = useState(searchParams.get('cheap') === 'true');
   const [crockpot, setCrockpot] = useState(searchParams.get('crockpot') === 'true');
+  const [grandmaRipley, setGrandmaRipley] = useState(searchParams.get('grandmaRipley') === 'true');
 
   const categories = ['Dinner', 'Lunch', 'Breakfast', 'Main Course', 'Dessert', 'Appetizer', 'Side', 'Snack'];
   const timeRanges = [
@@ -32,10 +33,11 @@ export default function Filters() {
     if (quick) params.set('quick', 'true');
     if (cheap) params.set('cheap', 'true');
     if (crockpot) params.set('crockpot', 'true');
+    if (grandmaRipley) params.set('grandmaRipley', 'true');
 
     const queryString = params.toString();
     router.push(`/recipes${queryString ? `?${queryString}` : ''}`);
-  }, [searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot, router]);
+  }, [searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot, grandmaRipley, router]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -45,11 +47,12 @@ export default function Filters() {
     setQuick(false);
     setCheap(false);
     setCrockpot(false);
+    setGrandmaRipley(false);
     router.push('/recipes');
   };
 
   // Track previous values to detect actual changes
-  const prevFiltersRef = useRef({ searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot });
+  const prevFiltersRef = useRef({ searchQuery, selectedCategory, selectedTime, fancy, quick, cheap, crockpot, grandmaRipley });
 
   // Dynamic search with debounce
   useEffect(() => {
@@ -73,7 +76,8 @@ export default function Filters() {
       prevFiltersRef.current.fancy !== fancy ||
       prevFiltersRef.current.quick !== quick ||
       prevFiltersRef.current.cheap !== cheap ||
-      prevFiltersRef.current.crockpot !== crockpot;
+      prevFiltersRef.current.crockpot !== crockpot ||
+      prevFiltersRef.current.grandmaRipley !== grandmaRipley;
 
     if (!hasChanged) return;
 
@@ -85,11 +89,12 @@ export default function Filters() {
       fancy, 
       quick, 
       cheap, 
-      crockpot 
+      crockpot,
+      grandmaRipley,
     };
     
     updateFilters(true);
-  }, [selectedCategory, selectedTime, fancy, quick, cheap, crockpot, searchQuery, updateFilters]);
+  }, [selectedCategory, selectedTime, fancy, quick, cheap, crockpot, grandmaRipley, searchQuery, updateFilters]);
 
   useEffect(() => {
     // Update filters when search params change (e.g., from browser back button)
@@ -100,6 +105,7 @@ export default function Filters() {
     setQuick(searchParams.get('quick') === 'true');
     setCheap(searchParams.get('cheap') === 'true');
     setCrockpot(searchParams.get('crockpot') === 'true');
+    setGrandmaRipley(searchParams.get('grandmaRipley') === 'true');
   }, [searchParams]);
 
   return (
@@ -200,10 +206,18 @@ export default function Filters() {
             >
               Crockpot
             </button>
+            <button
+              onClick={() => setGrandmaRipley(!grandmaRipley)}
+              className={`filter-button px-3 sm:px-4 py-2 rounded-full font-medium transition-all text-sm sm:text-base ${
+                grandmaRipley ? 'active' : ''
+              }`}
+            >
+              Grandma Ripley
+            </button>
           </div>
 
           {/* Clear Button */}
-          {(searchQuery || selectedCategory || selectedTime || fancy || quick || cheap || crockpot) && (
+          {(searchQuery || selectedCategory || selectedTime || fancy || quick || cheap || crockpot || grandmaRipley) && (
             <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
               <button
                 onClick={clearFilters}

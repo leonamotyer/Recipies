@@ -5,6 +5,7 @@ import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
 import Reveal from "@/app/components/reveal";
 import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
+import { GRANDMA_RIPLEY_TAG } from "@/lib/grandmaRipley";
 import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
 // Force dynamic rendering since we use searchParams
@@ -28,6 +29,7 @@ export default async function RecipesPage(props: RecipesPageProps) {
       const searchLower = searchParams.search.toLowerCase();
       allRecipes = allRecipes.filter(recipe => 
         recipe.title.toLowerCase().includes(searchLower) ||
+        (recipe.displayTitle?.toLowerCase().includes(searchLower)) ||
         recipe.description?.toLowerCase().includes(searchLower) ||
         recipe.cookingDescription?.toLowerCase().includes(searchLower) ||
         recipe.ingredients?.some(ing => 
@@ -70,13 +72,14 @@ export default async function RecipesPage(props: RecipesPageProps) {
       pageTitle = `${displayCategory} Recipes`;
     }
 
-    // Apply tag filters (fancy, quick, cheap, crockpot)
-    if (searchParams.fancy || searchParams.quick || searchParams.cheap || searchParams.crockpot) {
-      const filters: { fancy?: boolean; quick?: boolean; cheap?: boolean; crockpot?: boolean } = {};
+    // Apply tag filters (fancy, quick, cheap, crockpot, grandmaRipley)
+    if (searchParams.fancy || searchParams.quick || searchParams.cheap || searchParams.crockpot || searchParams.grandmaRipley) {
+      const filters: { fancy?: boolean; quick?: boolean; cheap?: boolean; crockpot?: boolean; grandmaRipley?: boolean } = {};
       if (searchParams.fancy === 'true') filters.fancy = true;
       if (searchParams.quick === 'true') filters.quick = true;
       if (searchParams.cheap === 'true') filters.cheap = true;
       if (searchParams.crockpot === 'true') filters.crockpot = true;
+      if (searchParams.grandmaRipley === 'true') filters.grandmaRipley = true;
       
       const filteredByTags = await getRecipesByFilters(filters);
       // Combine with already filtered recipes
@@ -84,7 +87,11 @@ export default async function RecipesPage(props: RecipesPageProps) {
       allRecipes = allRecipes.filter(r => filteredIds.has(r.id));
       
       if (!searchParams.category) {
-        pageTitle = "Filtered Recipes";
+        if (searchParams.grandmaRipley === 'true' && !searchParams.fancy && !searchParams.quick && !searchParams.cheap && !searchParams.crockpot) {
+          pageTitle = `${GRANDMA_RIPLEY_TAG} Recipes`;
+        } else {
+          pageTitle = "Filtered Recipes";
+        }
       }
     }
 
