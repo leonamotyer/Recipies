@@ -7,14 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test-graphql": "tsx scripts/testGraphQL.ts",
-    "test-realtime": "tsx scripts/testRealtime.ts",
-    "check-env": "tsx scripts/checkEnv.ts"
+    "migrate": "tsx scripts/migrateRecipes.ts"
   },
   "dependencies": {
-    "@apollo/client": "^4.0.9",
     "firebase": "^12.6.0",
-    "graphql": "^16.12.0",
     "next": "^16.2.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -32,6 +28,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9.39.0",
     "eslint-config-next": "^16.2.9",
+    "firebase-admin": "^14.1.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "tsx": "^4.21.0",

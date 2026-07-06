@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { revalidateRecipePaths } from '@/app/actions';
-import { updateRecipe, createRecipe } from '@/lib/firebaseRecipesRealtime';
+import { updateRecipe, createRecipe } from '@/lib/recipes';
 import { uploadRecipeImage } from '@/lib/firebaseStorage';
 import type { Recipe, Ingredient, Image as RecipeImage } from '@/lib/data.types';
 
@@ -16,11 +16,18 @@ interface EditRecipeFormProps {
 
 export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const isCreateMode = !recipe;
-  const draftId = useRef(`draft-${Date.now()}`);
-  const recipeId = recipe?.id ?? draftId.current;
+  const draftIdRef = useRef<string | null>(null);
+  // Lazily generated in handlers (not during render) to keep the render pure
+  const getRecipeId = () => {
+    if (recipe?.id) return recipe.id;
+    if (!draftIdRef.current) {
+      draftIdRef.current = `draft-${Date.now()}`;
+    }
+    return draftIdRef.current;
+  };
 
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -55,7 +62,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
       ...prev,
       {
         id: `temp-${Date.now()}`,
-        recipeId: recipeId,
+        recipeId: getRecipeId(),
         ingredientName: '',
         measurement: '',
       }
@@ -76,6 +83,15 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!user) {
+      setError('You must be signed in to upload images');
+      return;
+    }
+    if (!isAdmin) {
+      setError(`Only the admin account can upload images (signed in as ${user.email})`);
+      return;
+    }
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
       setError('Please select an image file');
@@ -92,7 +108,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
     setError(null);
 
     try {
-      const imageUrl = await uploadRecipeImage(file, recipeId);
+      const imageUrl = await uploadRecipeImage(file, getRecipeId());
       
       // Create new image object with uploader email
       const newImage: RecipeImage = {

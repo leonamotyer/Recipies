@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
-import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
+import { getRecipeById } from "@/lib/recipes";
 import EditRecipeForm from "@/app/components/editRecipeForm";
 import type { Recipe } from "@/lib/data.types";
 

@@ -5,7 +5,7 @@ import Header from "@/app/components/header";
 import ProtectedEditButton from "@/app/components/ProtectedEditButton";
 import AddPhotoButton from "@/app/components/AddPhotoButton";
 import IngredientChecklist from "@/app/components/ingredientChecklist";
-import { getRecipeById } from "@/lib/firebaseRecipesRealtime";
+import { getRecipeById } from "@/lib/recipes";
 import { GRANDMA_RIPLEY_TAG } from "@/lib/grandmaRipley";
 import type { Recipe } from "@/lib/data.types";
 

@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { uploadRecipeImage } from '@/lib/firebaseStorage';
-import { updateRecipe } from '@/lib/firebaseRecipesRealtime';
+import { updateRecipe } from '@/lib/recipes';
 import { revalidateRecipePaths } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';

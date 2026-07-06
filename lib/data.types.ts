@@ -1,13 +1,13 @@
 /**
  * Data Types for Leona's Recipes Website
- * 
- * This file defines all the data types used throughout the application,
- * matching the Firebase Data Connect schema structure.
+ *
+ * This file defines all the data types used throughout the application.
+ * Recipes are stored in Firebase Realtime Database at /recipes/{id},
+ * with images in Firebase Storage under recipe-images/{id}/.
  */
 
 /**
  * Recipe - Main recipe data type
- * Matches the Recipe model in Firebase Data Connect
  */
 export interface Recipe {
   /** Unique identifier (UUID) */
@@ -25,11 +25,14 @@ export interface Recipe {
   /** Array of dish categories (e.g., ["dinner", "main", "quick", "cheap"]) */
   dishCategories: string[];
   
-  /** Related ingredients (populated from Ingredient table via relationship) */
+  /** Recipe ingredients */
   ingredients?: Ingredient[];
-  
-  /** Related images (populated from Image table via RecipeImage junction) */
+
+  /** Recipe images (download URLs from Firebase Storage) */
   images?: Image[];
+
+  /** Firebase Storage folder holding this recipe's images (e.g. "recipe-images/1") */
+  imageFolder?: string;
   
   // Computed/display fields (not in database, added for convenience)
   /** Formatted time string (e.g., "30 min") */
@@ -62,59 +65,36 @@ export interface Recipe {
 
 /**
  * Ingredient - Individual ingredient for a recipe
- * Matches the Ingredient model in Firebase Data Connect
  */
 export interface Ingredient {
-  /** Unique identifier (UUID) */
+  /** Unique identifier */
   id: string;
-  
-  /** Foreign key: Recipe ID this ingredient belongs to */
+
+  /** Recipe ID this ingredient belongs to */
   recipeId: string;
-  
+
   /** Name of the ingredient */
   ingredientName: string;
-  
+
   /** Measurement/quantity (e.g., "1 cup", "2 tbsp", "to taste") */
   measurement: string;
-  
-  /** Relationship to Recipe (populated via GraphQL) */
-  recipe?: Recipe;
 }
 
 /**
  * Image - Image data
- * Matches the Image model in Firebase Data Connect
  */
 export interface Image {
-  /** Unique identifier (UUID) */
+  /** Unique identifier */
   id: string;
-  
-  /** URL to the image */
+
+  /** Download URL of the image in Firebase Storage */
   imageUrl: string;
-  
+
   /** Optional image description */
   description?: string;
-  
+
   /** Email of the user who uploaded the image */
   uploadedBy?: string;
-}
-
-/**
- * RecipeImage - Junction table linking recipes to images
- * Matches the RecipeImage model in Firebase Data Connect
- */
-export interface RecipeImage {
-  /** Foreign key: Recipe ID */
-  recipeId: string;
-  
-  /** Foreign key: Image ID */
-  imageId: string;
-  
-  /** Relationship to Recipe (populated via GraphQL) */
-  recipe?: Recipe;
-  
-  /** Relationship to Image (populated via GraphQL) */
-  image?: Image;
 }
 
 /**
@@ -135,21 +115,6 @@ export interface RecipeFilters {
 
   /** Filter by Grandma Ripley recipes (title prefixed with "GR ") */
   grandmaRipley?: boolean;
-}
-
-/**
- * GraphQL Query Response Types
- */
-export interface GetAllRecipesResponse {
-  recipes: Recipe[];
-}
-
-export interface GetRecipeByIdResponse {
-  recipe: Recipe | null;
-}
-
-export interface GetRecipesByCategoryResponse {
-  recipes: Recipe[];
 }
 
 /**

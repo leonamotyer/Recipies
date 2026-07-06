@@ -4,7 +4,7 @@ import Header from "@/app/components/header";
 import RecipeCard from "@/app/components/recipieCard";
 import RegenerateButton from "@/app/components/regenerateButton";
 import Reveal from "@/app/components/reveal";
-import { getAllRecipes } from "@/lib/firebaseRecipesRealtime";
+import { getAllRecipes } from "@/lib/recipes";
 import { unstable_cache } from "next/cache";
 import type { Recipe } from "@/lib/data.types";
 

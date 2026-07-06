@@ -4,7 +4,7 @@ import Header from "@/app/components/header";
 import Filters from "@/app/components/filters";
 import RecipeCard from "@/app/components/recipieCard";
 import Reveal from "@/app/components/reveal";
-import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/firebaseRecipesRealtime";
+import { getAllRecipes, getRecipesByCategory, getRecipesByFilters } from "@/lib/recipes";
 import { GRANDMA_RIPLEY_TAG } from "@/lib/grandmaRipley";
 import type { Recipe, RecipesPageProps } from "@/lib/data.types";
 
